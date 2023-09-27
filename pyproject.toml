@@ -26,7 +26,12 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
-dependencies = ["aiohttp>=3.8", "cssselect", "lxml"]
+dependencies = [
+    "aiohttp>=3.8",
+    "cssselect",
+    "lxml",
+    "lxml-stubs@git+https://github.com/Sachaa-Thanasius/lxml-stubs.git", # My custom, slightly more typed version.
+]
 dynamic = ["version"]
 
 [tool.setuptools.dynamic]
@@ -113,7 +118,10 @@ combine-as-imports = true
 property-decorators = ["ao3.utils.cached_slot_property"] # Similar enough to functools.cached_property().
 
 [tool.pyright]
-include = ["ao3"]
+include = ["ao3", "tests"]
+venvPath = "."             # Necessary to point Pyright at the custom lxml-stubs.
+venv = ".venv"             # Necessary to point Pyright at the custom lxml-stubs.
+
 pythonVersion = "3.10"
 typeCheckingMode = "strict"
 reportPrivateUsage = "none"
