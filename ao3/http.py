@@ -21,7 +21,10 @@ HTTPVerb: TypeAlias = Literal["GET", "POST", "PUT", "DELETE", "PATCH"]
 
 LOGGER = logging.getLogger(__name__)
 
-__all__ = ("AO3_BASE", "HTTPClient")
+__all__ = (
+    "AO3_BASE",
+    "HTTPClient",
+)
 
 AO3_BASE = "https://archiveofourown.org"
 
@@ -275,8 +278,8 @@ class HTTPClient:
 
     def search_works(
         self,
-        any_field: str = "",
         page: int = 1,
+        any_field: str = "",
         title: str = "",
         author: str = "",
         revised_at: str = "",
@@ -327,17 +330,19 @@ class HTTPClient:
 
         return self._request(route, params=payload)
 
-    def search_people(self, any_field: str = "", name: str = "", fandom: str = "") -> Coro[str]:
+    def search_people(self, page: int = 1, any_field: str = "", name: str = "", fandom: str = "") -> Coro[str]:
         route = Route("GET", "/people/search")
         payload = {
-            "people_search[query]": any_field,
-            "people_search[name]": name,
+            "page": page,
             "people_search[fandom]": fandom,
+            "people_search[name]": name,
+            "people_search[query]": any_field,
         }
         return self._request(route, params=payload)
 
     def search_bookmarks(
         self,
+        page: int = 1,
         any_field: str = "",
         work_tags: str = "",
         type_: Literal["Work", "Series", "External Work"] | None = None,
@@ -353,6 +358,7 @@ class HTTPClient:
     ) -> Coro[str]:
         route = Route("GET", "/bookmarks/search")
         payload = {
+            "page": page,
             "bookmark_search[bookmarkable_query]": any_field,
             "bookmark_search[other_tag_names]": work_tags,
             "bookmark_search[bookmarkable_type]": type_ if type_ is not None else "",

@@ -16,6 +16,7 @@ from .client import *
 from .enums import *
 from .errors import *
 from .http import *
+from .search import *
 from .series import *
 from .user import *
 from .work import *

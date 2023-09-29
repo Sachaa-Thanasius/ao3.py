@@ -11,9 +11,7 @@ from ._selectors import WORK_SELECTORS
 from .abc import BookmarkableMixin, KudoableMixin, Object, Page, SubscribableMixin
 from .enums import Language
 from .errors import AO3Exception, UnloadedError
-from .series import Series
-from .user import User
-from .utils import cached_slot_property, id_from_url, int_or_none
+from .utils import cached_slot_property, get_id_from_url, int_or_none
 
 
 if TYPE_CHECKING:
@@ -79,10 +77,10 @@ class Work(Page, SubscribableMixin, KudoableMixin, BookmarkableMixin):
         return hash((self.__class__.__name__, self.id))
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}(title={self.title} id={self.id})"
+        return f"<{type(self).__name__}(title={self.title} id={self.id})>"
 
     @property
-    def id(self) -> int:  # noqa: A003
+    def id(self) -> int:
         return self._id
 
     @property
@@ -116,6 +114,8 @@ class Work(Page, SubscribableMixin, KudoableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_authors")
     def authors(self) -> tuple[Object, ...]:
+        from .user import User  # Avoid circular import.
+
         # TODO: Consider implementing PartialUser and using it here.
         if self.raw_element is None:
             raise UnloadedError
@@ -135,6 +135,8 @@ class Work(Page, SubscribableMixin, KudoableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_series")
     def series(self) -> tuple[Object, ...]:
+        from .series import Series  # Avoid circular import.
+
         # TODO: Consider implementing PartialSeries and using it here.
         if self.raw_element is None:
             raise UnloadedError
@@ -305,10 +307,14 @@ class Work(Page, SubscribableMixin, KudoableMixin, BookmarkableMixin):
         work_element: html.HtmlElement,
         authenticity_token: str | None = None,
     ) -> Self:
+        # Avoid circular imports.
+        from .series import Series
+        from .user import User
+
         try:
             work_el = work_element.cssselect('a[href^="/works"]')[0]
             title = str(work_el.text_content())
-            work_id = id_from_url("archiveofourown.org" + (work_el.get("href") or ""))
+            work_id = get_id_from_url("archiveofourown.org" + (work_el.get("href") or ""))
         except (IndexError, ValueError) as err:
             raise AO3Exception from err
 

@@ -19,13 +19,16 @@ from .errors import AO3Exception
 T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
 
-__all__ = ("id_from_url", "Constraint")
+__all__ = (
+    "get_id_from_url",
+    "Constraint",
+)
 
 AO3_STORY_REGEX = re.compile(r"(?:https://|)(?:www\.|)archiveofourown\.org/(?:works|series)/(?P<ao3_id>\d+)")
 ICON_URL_USER_ID_REGEX = re.compile(r".*/(\d+)/")
 
 
-def id_from_url(url: str, *, will_raise: bool = False) -> int | None:
+def get_id_from_url(url: str, *, will_raise: bool = False) -> int | None:
     """Get the work/series ID from an AO3 website url.
 
     Parameters

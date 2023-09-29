@@ -32,7 +32,7 @@ __all__ = (
 class Page(Protocol):
     __slots__ = ()
 
-    id: property | CachedSlotProperty[Self, int]  # noqa: A003
+    id: property | CachedSlotProperty[Self, int]
     _http: HTTPClient
     _element: html.HtmlElement | None
     _authenticity_token: str | None
@@ -56,7 +56,7 @@ class KudoableMixin:
     # Includes works.
     __slots__ = ()
 
-    id: property | CachedSlotProperty[Self, int]  # noqa: A003
+    id: property | CachedSlotProperty[Self, int]
     _http: HTTPClient
     authenticity_token: CachedSlotProperty[Self, str | None]
 
@@ -76,7 +76,7 @@ class BookmarkableMixin:
     # Includes series and works.
     __slots__ = ()
 
-    id: property | CachedSlotProperty[Self, int]  # noqa: A003
+    id: property | CachedSlotProperty[Self, int]
     _http: HTTPClient
     authenticity_token: CachedSlotProperty[Self, str | None]
     raw_element: property | html.HtmlElement
@@ -129,7 +129,7 @@ class SubscribableMixin:
     # Includes series, works, and users.
     __slots__ = ()
 
-    id: property | CachedSlotProperty[Self, int]  # noqa: A003
+    id: property | CachedSlotProperty[Self, int]
     _http: HTTPClient
     authenticity_token: CachedSlotProperty[Self, str | None]
     sub_id: CachedSlotProperty[Self, int | None]
@@ -180,9 +180,9 @@ class Object:
     def __init__(
         self,
         *,
-        id: SupportsIntCast | None = None,  # noqa: A002
+        id: SupportsIntCast | None = None,
         name: str | None = None,
-        type: type[Page] | None = None,  # noqa: A002
+        type: type[Page] | None = None,
     ) -> None:
         if id is None and name is None:
             msg = "At least one of id and name must be specified."
@@ -190,7 +190,7 @@ class Object:
 
         if id is not None:
             try:
-                id = int(id)  # noqa: A001
+                id = int(id)
             except ValueError:
                 msg = f"id parameter must be int-compatible, not {id.__class__}"
                 raise ValueError(msg) from None

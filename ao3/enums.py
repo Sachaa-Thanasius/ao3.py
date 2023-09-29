@@ -3,7 +3,11 @@ from __future__ import annotations
 from enum import Enum
 
 
-__all__ = ("RatingId", "Language", "FandomKey")
+__all__ = (
+    "RatingId",
+    "Language",
+    "FandomKey",
+)
 
 
 class RatingId(Enum):

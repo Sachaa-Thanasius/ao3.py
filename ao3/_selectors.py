@@ -3,7 +3,11 @@ from functools import partial
 from lxml import cssselect
 
 
-__all__ = ("WORK_SELECTORS", "SERIES_SELECTORS", "USER_SELECTORS")
+__all__ = (
+    "WORK_SELECTORS",
+    "SERIES_SELECTORS",
+    "USER_SELECTORS",
+)
 
 CSSSelector = partial(cssselect.CSSSelector, translator="html")
 
@@ -36,8 +40,12 @@ WORK_SELECTORS = {
 # fmt: on
 
 # Selectors for a work stub on a series/user/search/etc. page.
-...
-
+SEARCH_SELECTOR = {
+    "work": CSSSelector("li.work.blurb.group"),
+    "people": CSSSelector("li.user.blurb.group"),
+    "bookmark": CSSSelector("li.bookmark.blurb.group"),
+    "tag": CSSSelector("ol.tag.index.group > li"),
+}
 
 # Selectors for a series page.
 # fmt: off

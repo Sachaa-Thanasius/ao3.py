@@ -41,7 +41,7 @@ class catchtime:
 async def get_work_test(client: ao3.Client, url: str) -> None:
     log.info("----------WORK OBJECT TESTING----------")
 
-    work_id = ao3.utils.id_from_url(url)
+    work_id = ao3.utils.get_id_from_url(url)
     assert work_id
 
     with catchtime() as work_time:
@@ -78,7 +78,7 @@ async def get_work_test(client: ao3.Client, url: str) -> None:
 async def get_series_test(client: ao3.Client, url: str) -> None:
     log.info("----------SERIES OBJECT TESTING----------")
 
-    series_id = ao3.utils.id_from_url(url)
+    series_id = ao3.utils.get_id_from_url(url)
     assert series_id
 
     with catchtime() as series_time:
@@ -137,6 +137,28 @@ async def get_user_test(client: ao3.Client, username: str) -> None:
     log.info("--------------------------------------------------")
 
 
+async def get_search_test(client: ao3.Client) -> None:
+    log.info("----------SEARCH TESTING----------")
+
+    # Create work search parameters
+    search_params = ao3.WorkSearchParams(author="deniigiq")
+    with catchtime() as search_time:
+        search = await client.search_works(search_params)
+
+    log.info("Select: %s", search)
+    log.info("load time: %s", search_time.time)
+    log.info("First page works (%s):\n%s", len(search.results), "\n".join(f"{result!r}" for result in search.results))
+
+    # Test work search generator
+    async for page_search in client.generate_work_search_pages(search_params, stop=5):
+        log.info(
+            "Page %s:\n%s\n",
+            page_search.search_params.page,
+            "\n".join(f"{work!r}" for work in page_search.results),
+        )
+    log.info("--------------------------------------------------")
+
+
 async def main() -> None:
     test_work_url = "https://archiveofourown.org/works/48637876"
     test_series_url = "https://archiveofourown.org/series/1902145"
@@ -146,6 +168,7 @@ async def main() -> None:
         await get_work_test(client, test_work_url)
         await get_series_test(client, test_series_url)
         await get_user_test(client, test_username)
+        await get_search_test(client)
 
     await asyncio.sleep(0.1)
 

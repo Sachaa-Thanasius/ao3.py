@@ -62,10 +62,10 @@ class User(Page, SubscribableMixin):
         return hash((self.__class__.__name__, self.username))
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}(username={self.username} id={self.id})"
+        return f"<{type(self).__name__}(username={self.username} id={self.id})>"
 
     @cached_slot_property("_id")
-    def id(self) -> int:  # noqa: A003
+    def id(self) -> int:
         if self.raw_element is None:
             raise UnloadedError
         try:

@@ -96,6 +96,9 @@ ignore = [
     "ANN102",  # Same deal as ANN101, but for cls.
     "ANN401",  # Need Any for args and kwargs in some places.
     "PLR0913", # Some functions require more than 5 arguments.
+    "A001",    # Shadowing "id" and "type" in some places.
+    "A002",    # Shadowing "id" and "type" in some places.
+    "A003",    # Shadowing "id" and "type" in some places.
     "PD",      # Pandas isn't relevant for this project.
     "NPY",     # Numpy isn't relevant for this project.
 ]

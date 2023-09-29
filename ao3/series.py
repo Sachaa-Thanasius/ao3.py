@@ -62,10 +62,10 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
         return hash((self.__class__.__name__, self.id))
 
     def __repr__(self) -> str:
-        return f"{type(self).__name__}(name={self.name} id={self.id})"
+        return f"<{type(self).__name__}(name={self.name} id={self.id})>"
 
     @property
-    def id(self) -> int:  # noqa: A003
+    def id(self) -> int:
         return self._id
 
     @property
