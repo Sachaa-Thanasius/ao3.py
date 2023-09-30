@@ -1,10 +1,3 @@
-"""
-ao3.utils
--------------------
-
-Utility functions and classes for the ao3 package.
-"""
-
 from __future__ import annotations
 
 import re

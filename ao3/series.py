@@ -62,7 +62,7 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
         return hash((self.__class__.__name__, self.id))
 
     def __repr__(self) -> str:
-        return f"<{type(self).__name__}(name={self.name} id={self.id})>"
+        return f"{type(self).__name__}(name={self.name!r} id={self.id!r})"
 
     @property
     def id(self) -> int:
@@ -74,7 +74,7 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_sub_id")
     def sub_id(self) -> int | None:
-        if self.raw_element is None or (self._http.state.login_token is None):
+        if self.raw_element is None or not self._http.state:
             return None
         try:
             sub_el = SERIES_SELECTORS["sub_btn"](self.raw_element)[0]
@@ -199,5 +199,10 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
         )
 
     async def reload(self) -> None:
-        # TODO: Implement reload in Series.
-        pass
+        text = await self._http.get_series(self.id)
+        self._element = html.fromstring(text)
+
+        # Reset cached properties.
+        slots = set(self.__slots__).difference(("_id", "_http", "_element"))
+        for attr in slots:
+            delattr(self, attr)

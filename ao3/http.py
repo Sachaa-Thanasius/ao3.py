@@ -1,18 +1,22 @@
 from __future__ import annotations
 
 import asyncio
+import dataclasses
 import logging
 import sys
-from collections.abc import Coroutine
-from typing import Any, Literal, TypeAlias, TypeVar, overload
+from collections.abc import Coroutine, Sequence
+from typing import TYPE_CHECKING, Any, Literal, TypeAlias, TypeVar, overload
 from urllib.parse import quote as uriquote
 
 import aiohttp
 
 from . import __version__
-from .enums import Language, RatingId
-from .errors import AuthError, HTTPException
-from .utils import Constraint, extract_login_auth_token
+from .errors import AuthError, HTTPException, LoginError
+from .utils import extract_login_auth_token
+
+
+if TYPE_CHECKING:
+    from .user import User
 
 
 T = TypeVar("T")
@@ -21,10 +25,7 @@ HTTPVerb: TypeAlias = Literal["GET", "POST", "PUT", "DELETE", "PATCH"]
 
 LOGGER = logging.getLogger(__name__)
 
-__all__ = (
-    "AO3_BASE",
-    "HTTPClient",
-)
+__all__ = ("HTTPClient",)
 
 AO3_BASE = "https://archiveofourown.org"
 
@@ -55,27 +56,27 @@ class Route:
         self.url = url
 
 
+@dataclasses.dataclass
 class AuthState:
-    __slots__ = ("login_token",)
-
-    def __init__(self) -> None:
-        self.login_token: str | None = None
+    login_token: str
+    client_user: User
 
 
 class HTTPClient:
     """A small HTTP client that sends requests to AO3."""
 
-    __slots__ = ("_session", "state", "user_agent")
+    __slots__ = (
+        "_session",
+        "state",
+        "user_agent",
+    )
+
+    state: AuthState
 
     def __init__(self, *, _session: aiohttp.ClientSession | None = None) -> None:
         self._session = _session
-        self.state = AuthState()
         user_agent = "bot: ao3.py (https://github.com/Sachaa-Thanasius/ao3.py {0} Python/{1[0]}.{1[1]} aiohttp/{2}"
         self.user_agent = user_agent.format(__version__, sys.version_info, aiohttp.__version__)
-
-    @property
-    def is_logged_in(self) -> bool:
-        return self.state.login_token is not None
 
     def _start_session(self) -> None:
         if (not self._session) or self._session.closed:
@@ -93,17 +94,26 @@ class HTTPClient:
     async def _request(self, route: Route, return_type: Literal["raw"] = ..., **kwargs: Any) -> aiohttp.ClientResponse:
         ...
 
+    @overload
     async def _request(
         self,
         route: Route,
-        return_type: Literal["text", "raw"] = "text",
+        return_type: Literal["both"] = ...,
         **kwargs: Any,
-    ) -> str | aiohttp.ClientResponse:
+    ) -> tuple[aiohttp.ClientResponse, str]:
+        ...
+
+    async def _request(
+        self,
+        route: Route,
+        return_type: Literal["text", "raw", "both"] = "text",
+        **kwargs: Any,
+    ) -> str | aiohttp.ClientResponse | tuple[aiohttp.ClientResponse, str]:
         self._start_session()
         assert self._session
 
         headers = kwargs.pop("headers", {})
-        if self.state.login_token is not None and ("authenticity_token" not in headers):
+        if self.state and ("authenticity_token" not in headers):
             if kwargs["data"] and "x-csrf-token" in kwargs["data"]:
                 headers["authenticity_token"] = kwargs["data"]["x-csrf-token"]
             else:
@@ -126,6 +136,8 @@ class HTTPClient:
                     if 200 <= response.status < 300 or response.status == 302:
                         if return_type == "text":
                             return await response.text()
+                        if return_type == "both":
+                            return (response, await response.text())
                         return response
 
                     if response.status == 429:
@@ -158,7 +170,7 @@ class HTTPClient:
         assert self._session
 
         headers = kwargs.pop("headers", {})
-        if self.state.login_token is not None and ("authenticity_token" not in headers):
+        if self.state and ("authenticity_token" not in headers):
             if kwargs["data"] and "x-csrf-token" in kwargs["data"]:
                 headers["authenticity_token"] = kwargs["data"]["x-csrf-token"]
             else:
@@ -179,20 +191,27 @@ class HTTPClient:
         msg = "Unreachable code in HTTP handling."
         raise RuntimeError(msg)
 
-    async def login(self, username: str, password: str) -> None:
+    async def login(self, username: str, password: str) -> tuple[str | None, str]:
+        # Get the login page.
         route = Route("GET", "/users/login")
         text = await self._request(route)
         token = extract_login_auth_token(text)
 
+        # Perform the login.
         route = Route("POST", "/users/login")
         payload = {"user[login]": username, "user[password]": password, "authenticity_token": token}
-        text = await self._request(route, params=payload, allow_redirects=False)
-        self.state.login_token = extract_login_auth_token(text)
+        resp, text = await self._request(route, return_type="both", params=payload, allow_redirects=False)
+        if resp.status != 302:
+            raise LoginError
+
+        return extract_login_auth_token(text), await self.get_user(username)
 
     async def logout(self) -> None:
         route = Route("POST", "/users/logout")
         data = {"_method": "delete"}
         await self._request(route, data=data)
+        if self.state:
+            del self.state
 
     def get_languages(self) -> Coro[str]:
         route = Route("GET", "/languages")
@@ -283,48 +302,54 @@ class HTTPClient:
         title: str = "",
         author: str = "",
         revised_at: str = "",
+        complete: Literal["T", "F"] | None = None,
+        crossover: Literal["T", "F"] | None = None,
         single_chapter: bool = False,
-        word_count: Constraint | None = None,
-        language_id: Language | None = None,
+        word_count: str = "",
+        language_id: int | None = None,
         fandom_names: str = "",
+        rating_ids: int | None = None,
+        archive_warning_ids: Sequence[int] | None = None,
+        category_ids: Sequence[int] | None = None,
         character_names: str = "",
         relationship_names: str = "",
         freeform_names: str = "",
-        rating_ids: RatingId | None = None,
-        hits: Constraint | None = None,
-        kudos_count: Constraint | None = None,
-        crossover: Literal["T", "F"] | None = None,
-        bookmarks_count: Constraint | None = None,
+        hits: str = "",
+        kudos_count: str = "",
+        comments_count: str = "",
+        bookmarks_count: str = "",
         excluded_tag_names: str = "",
-        comments_count: Constraint | None = None,
-        complete: Literal["T", "F"] | None = None,
         sort_column: str = "_score",
         sort_direction: Literal["asc", "desc"] = "desc",
     ) -> Coro[str]:
         route = Route("GET", "/works/search")
-        payload = {
-            "work_search[query]": any_field,
+        payload: dict[str, Any] = {
             "page": page,
+            "work_search[query]": any_field,
             "work_search[title]": title,
             "work_search[creators]": author,
             "work_search[revised_at]": revised_at,
             "work_search[complete]": complete if complete is not None else "",
             "work_search[crossover]": crossover if crossover is not None else "",
             "work_search[single_chapter]": int(single_chapter),
-            "work_search[word_count]": word_count.string() if word_count is not None else "",
-            "work_search[language_id]": str(language_id) if language_id is not None else "",
+            "work_search[word_count]": word_count,
+            "work_search[language_id]": language_id if language_id else "",
             "work_search[fandom_names]": fandom_names,
-            "work_search[rating_ids]": str(rating_ids) if rating_ids is not None else "",
+            "work_search[rating_ids]": rating_ids if rating_ids else "",
             "work_search[character_names]": character_names,
             "work_search[relationship_names]": relationship_names,
             "work_search[freeform_names]": freeform_names,
-            "work_search[hits]": hits.string() if hits is not None else "",
-            "work_search[kudos_count]": kudos_count.string() if kudos_count is not None else "",
-            "work_search[comments_count]": comments_count.string() if comments_count is not None else "",
-            "work_search[bookmarks_count]": bookmarks_count.string() if bookmarks_count is not None else "",
+            "work_search[hits]": hits,
+            "work_search[kudos_count]": kudos_count,
+            "work_search[comments_count]": comments_count,
+            "work_search[bookmarks_count]": bookmarks_count,
             "work_search[sort_column]": sort_column,
             "work_search[sort_direction]": sort_direction,
         }
+        if archive_warning_ids:
+            payload["work_search[archive_warning_ids][]"] = archive_warning_ids
+        if category_ids:
+            payload["work_search[category_ids][]"] = category_ids
         if excluded_tag_names:
             payload["work_search[excluded_tag_names]"] = excluded_tag_names
 
@@ -346,11 +371,12 @@ class HTTPClient:
         any_field: str = "",
         work_tags: str = "",
         type_: Literal["Work", "Series", "External Work"] | None = None,
-        language_id: Language | None = None,
+        language_id: str = "",
         work_updated: str = "",
         any_bookmark_field: str = "",
         bookmark_tags: str = "",
         bookmarker: str = "",
+        notes: str = "",
         recommended: bool = False,
         with_notes: bool = False,
         bookmark_date: str = "",
@@ -362,11 +388,12 @@ class HTTPClient:
             "bookmark_search[bookmarkable_query]": any_field,
             "bookmark_search[other_tag_names]": work_tags,
             "bookmark_search[bookmarkable_type]": type_ if type_ is not None else "",
-            "bookmark_search[language_id]": str(language_id) if language_id is not None else "",
+            "bookmark_search[language_id]": language_id,
             "bookmark_search[bookmarkable_date]": work_updated,
             "bookmark_search[bookmark_query]": any_bookmark_field,
             "bookmark_search[other_bookmark_tag_names]": bookmark_tags,
             "bookmark_search[bookmarker]": bookmarker,
+            "bookmark_search[bookmarker_notes]": notes,
             "bookmark_search[rec]": int(recommended),
             "bookmark_search[with_notes]": int(with_notes),
             "bookmark_search[date]": bookmark_date,
@@ -398,49 +425,6 @@ class HTTPClient:
         route = Route("GET", "/comments/{id}", id=comment_id)
         return self._request(route)
 
-    def post_comment(
-        self,
-        ao3_object_id: int,
-        comment_text: str,
-        *,
-        token: str | None = None,
-        full_work: bool = False,
-        reply_comment_id: int | None = None,
-        email: str | None = None,
-        name: str | None = None,
-        pseud: str | None = None,
-    ) -> Coro[str]:
-        # TODO: Implement properly. Currently a stub. Needs authenticity token.
-        route = Route("POST", "/comments.js")
-        token = token or self.state.login_token
-        if not token:
-            raise AuthError
-
-        # Assemble headers
-        headers = {
-            "X-NewRelic-ID": "VQcCWV9RGwIJVFFRAw==",
-            "X-CSRF-Token": token,
-            "X-Requested-With": "XMLHttpRequest",
-        }
-
-        # Assemble payload
-        data: dict[str, Any] = {}
-
-        temp_key = "work_id" if full_work else "chapter_id"
-        data[temp_key] = ao3_object_id
-        if reply_comment_id:
-            data["comment_id"] = reply_comment_id
-
-        if self.state.login_token is not None:
-            pass
-
-        return self._request(route, headers=headers, data=data)
-
-    def delete_comment(self, comment_id: int) -> Coro[str]:
-        # TODO: Implement properly. Currently a stub. Needs authenticity token.
-        route = Route("POST", "/comments/{id}", id=comment_id)
-        return self._request(route)
-
     def give_kudos(self, authenticity_token: str, kudoable_id: int, kudoable_type: str) -> Coro[aiohttp.ClientResponse]:
         route = Route("POST", "/kudos.js")
         headers = {
@@ -466,7 +450,6 @@ class HTTPClient:
         recommend: bool = False,
         pseud_id: str = "",
     ) -> Coro[aiohttp.ClientResponse]:
-        # TODO: Double-check implementation.
         route = Route("POST", "{bookmarkable_path}/bookmarks", bookmarkable_path=bookmarkable_path)
 
         if tags is None:
@@ -487,7 +470,6 @@ class HTTPClient:
         return self._request(route, return_type="raw", data=data, allow_redirects=False)
 
     def delete_bookmark(self, authenticity_token: str, bookmark_id: int) -> Coro[aiohttp.ClientResponse]:
-        # TODO: Double-check implementation.
         route = Route("POST", "bookmarks/{bookmark_id}", bookmark_id=bookmark_id)
         data = {"authenticity_token": authenticity_token, "_method": "delete"}
         return self._request(route, return_type="raw", data=data)
@@ -525,6 +507,49 @@ class HTTPClient:
             "_method": "delete",
         }
         return self._request(route, return_type="raw", data=data)
+
+    def post_comment(
+        self,
+        ao3_object_id: int,
+        comment_text: str,
+        *,
+        token: str | None = None,
+        full_work: bool = False,
+        reply_comment_id: int | None = None,
+        email: str | None = None,
+        name: str | None = None,
+        pseud: str | None = None,
+    ) -> Coro[str]:
+        # TODO: Implement properly. Currently a stub. Needs authenticity token.
+        route = Route("POST", "/comments.js")
+        token = token or self.state.login_token
+        if not token:
+            raise AuthError
+
+        # Assemble headers
+        headers = {
+            "X-NewRelic-ID": "VQcCWV9RGwIJVFFRAw==",
+            "X-CSRF-Token": token,
+            "X-Requested-With": "XMLHttpRequest",
+        }
+
+        # Assemble payload
+        data: dict[str, Any] = {}
+
+        temp_key = "work_id" if full_work else "chapter_id"
+        data[temp_key] = ao3_object_id
+        if reply_comment_id:
+            data["comment_id"] = reply_comment_id
+
+        if self.state:
+            pass
+
+        return self._request(route, headers=headers, data=data)
+
+    def delete_comment(self, comment_id: int) -> Coro[str]:
+        # TODO: Implement properly. Currently a stub. Needs authenticity token.
+        route = Route("POST", "/comments/{id}", id=comment_id)
+        return self._request(route)
 
     def collect(self) -> Coro[aiohttp.ClientResponse]:
         # TODO: Implement properly. Currently a stub. Needs authenticity token.

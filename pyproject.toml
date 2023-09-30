@@ -7,7 +7,7 @@ name = "ao3.py"
 description = "An asynchronous scraper for Archive Of Our Own, made in Python."
 readme = "README.md"
 requires-python = ">=3.10"
-license = "MIT"
+license = { file = "LICENSE" }
 authors = [{ name = "Thanos", email = "111999343+Sachaa-Thanasius@users.noreply.github.com" }]
 classifiers = [
     "Development Status :: 1 - Planning",
@@ -99,6 +99,7 @@ ignore = [
     "A001",    # Shadowing "id" and "type" in some places.
     "A002",    # Shadowing "id" and "type" in some places.
     "A003",    # Shadowing "id" and "type" in some places.
+    "BLE001",  # Using "Exception" as a blanket catch.
     "PD",      # Pandas isn't relevant for this project.
     "NPY",     # Numpy isn't relevant for this project.
 ]

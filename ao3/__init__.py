@@ -1,21 +1,20 @@
 """
-AO3 Scraper/Wrapper
--------------------
+AO3 Scraper
+~~~~~~~~~~~
 
-A basic scraper/wrapper for the Archive Of Our Own website.
+A basic scraper for the Archive Of Our Own website.
 """
 
 __title__ = "ao3"
 __author__ = "Thanos"
 __license__ = "MIT"
-__version__ = "2023.9.23"
+__copyright__ = "Copyright 2023-present Sachaa-Thanasius"
+__version__ = "0.1.0"
 
-from . import utils as utils
-from .abc import *
+from . import abc as abc, utils as utils
 from .client import *
 from .enums import *
 from .errors import *
-from .http import *
 from .search import *
 from .series import *
 from .user import *

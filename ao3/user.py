@@ -62,7 +62,7 @@ class User(Page, SubscribableMixin):
         return hash((self.__class__.__name__, self.username))
 
     def __repr__(self) -> str:
-        return f"<{type(self).__name__}(username={self.username} id={self.id})>"
+        return f"{type(self).__name__}(username={self.username!r} id={self.id!r})"
 
     @cached_slot_property("_id")
     def id(self) -> int:
@@ -79,7 +79,7 @@ class User(Page, SubscribableMixin):
 
     @cached_slot_property("_cs_sub_id")
     def sub_id(self) -> int | None:
-        if self.raw_element is None or (self._http.state.login_token is None):
+        if self.raw_element is None or not self._http.state:
             return None
         try:
             sub_el = USER_SELECTORS["sub_id"](self.raw_element)[0]
@@ -181,5 +181,10 @@ class User(Page, SubscribableMixin):
             return 0
 
     async def reload(self) -> None:
-        # TODO: Implement reload in User.
-        pass
+        text = await self._http.get_user(self.username)
+        self._element = html.fromstring(text)
+
+        # Reset cached properties.
+        slots = set(self.__slots__).difference(("username", "_id", "_http", "_element"))
+        for attr in slots:
+            delattr(self, attr)

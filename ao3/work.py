@@ -77,7 +77,7 @@ class Work(Page, SubscribableMixin, KudoableMixin, BookmarkableMixin):
         return hash((self.__class__.__name__, self.id))
 
     def __repr__(self) -> str:
-        return f"<{type(self).__name__}(title={self.title} id={self.id})>"
+        return f"{type(self).__name__}(title={self.title!r} id={self.id!r})"
 
     @property
     def id(self) -> int:
@@ -91,7 +91,7 @@ class Work(Page, SubscribableMixin, KudoableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_sub_id")
     def sub_id(self) -> int | None:
-        if self.raw_element is None or (self._http.state.login_token is None):
+        if self.raw_element is None or not self._http.state:
             return None
         try:
             sub_el = WORK_SELECTORS["sub_id"](self.raw_element)[0]
@@ -116,7 +116,7 @@ class Work(Page, SubscribableMixin, KudoableMixin, BookmarkableMixin):
     def authors(self) -> tuple[Object, ...]:
         from .user import User  # Avoid circular import.
 
-        # TODO: Consider implementing PartialUser and using it here.
+        # Consider implementing PartialUser and using it here.
         if self.raw_element is None:
             raise UnloadedError
         return tuple(
@@ -137,7 +137,7 @@ class Work(Page, SubscribableMixin, KudoableMixin, BookmarkableMixin):
     def series(self) -> tuple[Object, ...]:
         from .series import Series  # Avoid circular import.
 
-        # TODO: Consider implementing PartialSeries and using it here.
+        # Consider implementing PartialSeries and using it here.
         if self.raw_element is None:
             raise UnloadedError
         return tuple(
@@ -399,5 +399,10 @@ class Work(Page, SubscribableMixin, KudoableMixin, BookmarkableMixin):
         return cls(http, payload=payload)
 
     async def reload(self) -> None:
-        # TODO: Implement reload in Work.
-        pass
+        text = await self._http.get_work(self.id)
+        self._element = html.fromstring(text)
+
+        # Reset cached properties.
+        slots = set(self.__slots__).difference(("_id", "_http", "_element"))
+        for attr in slots:
+            delattr(self, attr)

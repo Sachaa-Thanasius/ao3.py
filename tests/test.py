@@ -141,13 +141,17 @@ async def get_search_test(client: ao3.Client) -> None:
     log.info("----------SEARCH TESTING----------")
 
     # Create work search parameters
-    search_params = ao3.WorkSearchParams(author="deniigiq")
+    search_params = ao3.WorkSearchOptions(author="deniigiq")
     with catchtime() as search_time:
         search = await client.search_works(search_params)
 
-    log.info("Select: %s", search)
+    log.info("Select: %r", search)
     log.info("load time: %s", search_time.time)
-    log.info("First page works (%s):\n%s", len(search.results), "\n".join(f"{result!r}" for result in search.results))
+    log.info("1st page (%s):\n%s\n", len(search.results), "\n".join(f"{result!r}" for result in search.results))
+
+    search_params.page = 2
+    search = await client.search_works(search_params)
+    log.info("2nd page (%s):\n%s\n", len(search.results), "\n".join(f"{result!r}" for result in search.results))
 
     # Test work search generator
     async for page_search in client.generate_work_search_pages(search_params, stop=5):

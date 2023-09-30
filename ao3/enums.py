@@ -5,6 +5,8 @@ from enum import Enum
 
 __all__ = (
     "RatingId",
+    "ArchiveWarningId",
+    "CategoryId",
     "Language",
     "FandomKey",
 )
@@ -16,6 +18,24 @@ class RatingId(Enum):
     TEEN_AND_UP = 11
     MATURE = 12
     EXPLICIT = 13
+
+
+class ArchiveWarningId(Enum):
+    NOT_WARNED = 14
+    VIOLENCE = 17
+    MAJOR_DEATH = 18
+    NO_WARNINGS = 16
+    NONCON = 19
+    UNDERAGE = 20
+
+
+class CategoryId(Enum):
+    FF = 116
+    FM = 22
+    GEN = 21
+    MM = 23
+    MULTI = 2246
+    OTHER = 24
 
 
 class Language(Enum):
