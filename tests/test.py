@@ -154,10 +154,10 @@ async def get_search_test(client: ao3.Client) -> None:
     log.info("2nd page (%s):\n%s\n", len(search.results), "\n".join(f"{result!r}" for result in search.results))
 
     # Test work search generator
-    async for page_search in client.generate_work_search_pages(search_params, stop=5):
+    async for page_search in client.work_search_pages(search_params, stop=5):
         log.info(
             "Page %s:\n%s\n",
-            page_search.search_params.page,
+            page_search.search_options.page,
             "\n".join(f"{work!r}" for work in page_search.results),
         )
     log.info("--------------------------------------------------")

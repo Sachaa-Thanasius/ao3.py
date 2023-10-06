@@ -7,6 +7,7 @@ name = "ao3.py"
 description = "An asynchronous scraper for Archive Of Our Own, made in Python."
 readme = "README.md"
 requires-python = ">=3.10"
+version = "0.0.1"
 license = { file = "LICENSE" }
 authors = [{ name = "Thanos", email = "111999343+Sachaa-Thanasius@users.noreply.github.com" }]
 classifiers = [
@@ -32,10 +33,6 @@ dependencies = [
     "lxml",
     "lxml-stubs@git+https://github.com/Sachaa-Thanasius/lxml-stubs.git", # My custom, slightly more typed version.
 ]
-dynamic = ["version"]
-
-[tool.setuptools.dynamic]
-version = { attr = "ao3.__version__" }
 
 [project.optional-dependencies]
 speed = ["aiodns>=1.1", "Brotli", "cchardet"]
@@ -92,14 +89,13 @@ ignore = [
     "PLR2004", # Magic value comparison. May remove later.
     "SIM105",  # Suppressable exception. I'm not paying the overhead of contextlib.supress for stylistic choices.
     "C90",     # McCabe complexity memes.
+    "PLR0913", # Some functions require more than 5 arguments.
     "ANN101",  # Python310 doesn't have Self in typing, so I'm not using it everywhere for self.
     "ANN102",  # Same deal as ANN101, but for cls.
     "ANN401",  # Need Any for args and kwargs in some places.
-    "PLR0913", # Some functions require more than 5 arguments.
     "A001",    # Shadowing "id" and "type" in some places.
     "A002",    # Shadowing "id" and "type" in some places.
     "A003",    # Shadowing "id" and "type" in some places.
-    "BLE001",  # Using "Exception" as a blanket catch.
     "PD",      # Pandas isn't relevant for this project.
     "NPY",     # Numpy isn't relevant for this project.
 ]
@@ -119,7 +115,7 @@ lines-after-imports = 2
 combine-as-imports = true
 
 [tool.ruff.pydocstyle]
-property-decorators = ["ao3.utils.cached_slot_property"] # Similar enough to functools.cached_property().
+property-decorators = ["ao3.utils.cached_slot_property"] # Similar enough to functools.cached_property()?
 
 [tool.pyright]
 include = ["ao3", "tests"]

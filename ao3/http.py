@@ -1,17 +1,17 @@
 from __future__ import annotations
 
 import asyncio
-import dataclasses
 import logging
 import sys
 from collections.abc import Coroutine, Sequence
+from dataclasses import dataclass
+from importlib.metadata import version as im_version
 from typing import TYPE_CHECKING, Any, Literal, TypeAlias, TypeVar, overload
 from urllib.parse import quote as uriquote
 
 import aiohttp
 
-from . import __version__
-from .errors import AuthError, HTTPException, LoginError
+from .errors import AuthError, HTTPException, LoginFailure
 from .utils import extract_login_auth_token
 
 
@@ -56,7 +56,7 @@ class Route:
         self.url = url
 
 
-@dataclasses.dataclass
+@dataclass(slots=True)
 class AuthState:
     login_token: str
     client_user: User
@@ -71,12 +71,11 @@ class HTTPClient:
         "user_agent",
     )
 
-    state: AuthState
-
     def __init__(self, *, _session: aiohttp.ClientSession | None = None) -> None:
         self._session = _session
-        user_agent = "bot: ao3.py (https://github.com/Sachaa-Thanasius/ao3.py {0} Python/{1[0]}.{1[1]} aiohttp/{2}"
-        self.user_agent = user_agent.format(__version__, sys.version_info, aiohttp.__version__)
+        user_agent = "bot: ao3.py (https://github.com/Sachaa-Thanasius/ao3.py) {0} Python/{1[0]}.{1[1]} aiohttp/{2}"
+        self.user_agent = user_agent.format(im_version("ao3.py"), sys.version_info, im_version("aiohttp"))
+        self.state: AuthState | None = None
 
     def _start_session(self) -> None:
         if (not self._session) or self._session.closed:
@@ -88,6 +87,10 @@ class HTTPClient:
 
     @overload
     async def _request(self, route: Route, return_type: Literal["text"] = ..., **kwargs: Any) -> str:
+        ...
+
+    @overload
+    async def _request(self, route: Route, return_type: Literal["json"] = ..., **kwargs: Any) -> dict[str, Any]:
         ...
 
     @overload
@@ -106,9 +109,9 @@ class HTTPClient:
     async def _request(
         self,
         route: Route,
-        return_type: Literal["text", "raw", "both"] = "text",
+        return_type: Literal["text", "json", "raw", "both"] = "text",
         **kwargs: Any,
-    ) -> str | aiohttp.ClientResponse | tuple[aiohttp.ClientResponse, str]:
+    ) -> str | dict[str, Any] | aiohttp.ClientResponse | tuple[aiohttp.ClientResponse, str]:
         self._start_session()
         assert self._session
 
@@ -136,6 +139,8 @@ class HTTPClient:
                     if 200 <= response.status < 300 or response.status == 302:
                         if return_type == "text":
                             return await response.text()
+                        if return_type == "json":
+                            return await response.json()
                         if return_type == "both":
                             return (response, await response.text())
                         return response
@@ -202,7 +207,7 @@ class HTTPClient:
         payload = {"user[login]": username, "user[password]": password, "authenticity_token": token}
         resp, text = await self._request(route, return_type="both", params=payload, allow_redirects=False)
         if resp.status != 302:
-            raise LoginError
+            raise LoginFailure
 
         return extract_login_auth_token(text), await self.get_user(username)
 
@@ -222,7 +227,7 @@ class HTTPClient:
         return self._request(route)
 
     def get_user(self, username: str) -> Coro[str]:
-        # Just go straight to the profile, I guess?
+        # Going straight for the profile instead of parsing from the dashboard makes more sense.
         route = Route("GET", "/users/{username}/profile", username=username)
         return self._request(route)
 
@@ -480,15 +485,14 @@ class HTTPClient:
         username: str,
         subable_id: int,
         subable_type: str,
-    ) -> Coro[aiohttp.ClientResponse]:
-        # FIXME: Get username from client user object?
+    ) -> Coro[dict[str, Any]]:
         route = Route("POST", "/users/{username}/subscriptions", username=username)
         data = {
             "authenticity_token": authenticity_token,
             "subscription[subscribable_id]": subable_id,
             "subscription[subscribable_type]": subable_type,
         }
-        return self._request(route, return_type="raw", data=data)
+        return self._request(route, return_type="json", data=data)
 
     def unsubscribe(
         self,
@@ -498,7 +502,6 @@ class HTTPClient:
         subable_type: str,
         subscription_id: int,
     ) -> Coro[aiohttp.ClientResponse]:
-        # FIXME: Get username from client user object?
         route = Route("POST", "/users/{username}/subscriptions/{sub_id}", username=username, sub_id=subscription_id)
         data = {
             "authenticity_token": authenticity_token,
@@ -520,20 +523,18 @@ class HTTPClient:
         name: str | None = None,
         pseud: str | None = None,
     ) -> Coro[str]:
-        # TODO: Implement properly. Currently a stub. Needs authenticity token.
+        # TODO: Implement post_comment() properly. Currently a stub. Needs authenticity token.
         route = Route("POST", "/comments.js")
-        token = token or self.state.login_token
+        token = getattr(self.state, "login_token", token)
         if not token:
             raise AuthError
 
-        # Assemble headers
         headers = {
             "X-NewRelic-ID": "VQcCWV9RGwIJVFFRAw==",
             "X-CSRF-Token": token,
             "X-Requested-With": "XMLHttpRequest",
         }
 
-        # Assemble payload
         data: dict[str, Any] = {}
 
         temp_key = "work_id" if full_work else "chapter_id"
@@ -547,10 +548,20 @@ class HTTPClient:
         return self._request(route, headers=headers, data=data)
 
     def delete_comment(self, comment_id: int) -> Coro[str]:
-        # TODO: Implement properly. Currently a stub. Needs authenticity token.
+        # TODO: Implement delete_comment() properly. Currently a stub. Needs authenticity token.
         route = Route("POST", "/comments/{id}", id=comment_id)
         return self._request(route)
 
-    def collect(self) -> Coro[aiohttp.ClientResponse]:
-        # TODO: Implement properly. Currently a stub. Needs authenticity token.
-        ...
+    def collect(
+        self,
+        authenticity_token: str,
+        collectable_path: str,
+        collection_names: str,
+    ) -> Coro[tuple[aiohttp.ClientResponse, str]]:
+        route = Route("POST", "/{collectable_path}/collection_items", collectable_path=collectable_path)
+        data = {
+            "authenticity_token": authenticity_token,
+            "collection_names": collection_names,
+            "commit": "add",
+        }
+        return self._request(route, return_type="both", data=data, allow_redirects=True)

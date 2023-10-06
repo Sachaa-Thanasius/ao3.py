@@ -184,7 +184,7 @@ class User(Page, SubscribableMixin):
         text = await self._http.get_user(self.username)
         self._element = html.fromstring(text)
 
-        # Reset cached properties.
+        # Reset relevant cached properties.
         slots = set(self.__slots__).difference(("username", "_id", "_http", "_element"))
         for attr in slots:
             delattr(self, attr)

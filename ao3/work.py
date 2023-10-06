@@ -8,7 +8,7 @@ from typing import TYPE_CHECKING, Any, TypeAlias
 from lxml import html
 
 from ._selectors import WORK_SELECTORS
-from .abc import BookmarkableMixin, KudoableMixin, Object, Page, SubscribableMixin
+from .abc import BookmarkableMixin, CollectableMixin, KudoableMixin, Object, Page, SubscribableMixin
 from .enums import Language
 from .errors import AO3Exception, UnloadedError
 from .utils import cached_slot_property, get_id_from_url, int_or_none
@@ -24,7 +24,7 @@ else:
 __all__ = ("Work",)
 
 
-class Work(Page, SubscribableMixin, KudoableMixin, BookmarkableMixin):
+class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, CollectableMixin):
     __slots__ = (
         "_id",
         "_http",

@@ -3,7 +3,17 @@ from __future__ import annotations
 from abc import abstractmethod
 from typing import TYPE_CHECKING, Any, Protocol, SupportsInt, TypeAlias, runtime_checkable
 
-from .errors import AO3Exception, AuthError, BookmarkError, KudoError, PseudError, UnloadedError
+from .errors import (
+    AO3_AUTH_ERROR_URL,
+    AuthError,
+    BookmarkError,
+    CollectError,
+    HTTPException,
+    KudoError,
+    PseudError,
+    SubscribeError,
+    UnloadedError,
+)
 from .utils import CachedSlotProperty, cached_slot_property, extract_csrf_token, extract_pseud_id
 
 
@@ -35,7 +45,7 @@ class Page(Protocol):
     Attributes
     ----------
     id : :class:`int`
-        The item's ID. Unique for all items, excluding search-related ones.
+        The item's ID. Unique for all items within their categories, excluding search-related ones that default to 0.
     """
 
     __slots__ = ()
@@ -103,17 +113,14 @@ class KudoableMixin:
             Something went wrong in the kudoing process.
         """
 
-        try:
-            auth_token = self._http.state.login_token
-        except AttributeError:
-            auth_token = self.authenticity_token
+        auth_token = getattr(self._http.state, "login_token", self.authenticity_token)
 
         if auth_token is None:
             raise AuthError
 
         try:
             await self._http.give_kudos(auth_token, self.id, self.kudoable_type)
-        except Exception as err:
+        except HTTPException as err:
             raise KudoError from err
 
 
@@ -139,7 +146,7 @@ class BookmarkableMixin:
 
     @cached_slot_property("_cs_bookmark_id")
     def bookmark_id(self) -> int | None:
-        if self.raw_element is None or not self._http.state.login_token:
+        if self.raw_element is None or not self._http.state:
             return None
         try:
             el = self.raw_element.cssselect('div#bookmark-form > form[action^="/bookmark"]')[0]
@@ -156,7 +163,9 @@ class BookmarkableMixin:
         recommend: bool = False,
         as_pseud: str | None = None,
     ) -> None:
-        """Adds a bookmark corresponding to the item. Be careful — you can bookmark the same work multiple times.
+        """Adds a bookmark corresponding to this item for the current logged-in user.
+
+        Be careful — you can bookmark the same work multiple times.
 
         Parameters
         ----------
@@ -185,10 +194,7 @@ class BookmarkableMixin:
             ID for specified or default pseud could not be found.
         """
 
-        try:
-            auth_token = self._http.state.login_token
-        except AttributeError:
-            auth_token = self.authenticity_token
+        auth_token = getattr(self._http.state, "login_token", self.authenticity_token)
 
         if auth_token is None:
             raise AuthError
@@ -205,7 +211,7 @@ class BookmarkableMixin:
         try:
             path = self.url.partition(".org")[-1]
             resp = await self._http.bookmark(auth_token, path, notes, tags, collections, private, recommend, pseud_id)
-        except Exception as err:
+        except HTTPException as err:
             raise BookmarkError from err
         else:
             self._cs_bookmark_id = int(resp.url.parts[-1])
@@ -221,10 +227,7 @@ class BookmarkableMixin:
             Something went wrong in the bookmarking process.
         """
 
-        try:
-            auth_token = self._http.state.login_token
-        except AttributeError:
-            auth_token = self.authenticity_token
+        auth_token = getattr(self._http.state, "login_token", self.authenticity_token)
 
         if auth_token is None:
             raise AuthError
@@ -234,7 +237,7 @@ class BookmarkableMixin:
 
         try:
             await self._http.delete_bookmark(auth_token, self.bookmark_id)
-        except Exception as err:
+        except HTTPException as err:
             raise BookmarkError from err
         else:
             self._cs_bookmark_id = None
@@ -266,31 +269,62 @@ class SubscribableMixin:
         raise NotImplementedError
 
     async def subscribe(self) -> None:
-        try:
-            auth_token = self._http.state.login_token
-        except AttributeError:
-            auth_token = self.authenticity_token
+        """Subscribes the current logged-in user to this item.
 
-        # Account for already having bookmarked the thing.
-        if auth_token is None or self.sub_id is not None:
-            raise AO3Exception
+        Be careful — you can subscribe to the same work multiple times.
 
+        Raises
+        ------
+        AuthError
+            Invalid authenticity token was used (might be expired or not logged in).
+        SubscribeError
+            Something went wrong in the subscription process.
+        """
+
+        auth_token = getattr(self._http.state, "login_token", self.authenticity_token)
+
+        if auth_token is None:
+            raise AuthError
+        if self.sub_id is not None:
+            msg = "This item has already been subscribed to."
+            raise SubscribeError(msg)
+
+        assert self._http.state  # Not sure if this is accurate.
         client_username = self._http.state.client_user.username
-        response = await self._http.subscribe(auth_token, client_username, self.id, self.subable_type)
-        self._cs_sub_id = (await response.json())["item_id"]
+        try:
+            data = await self._http.subscribe(auth_token, client_username, self.id, self.subable_type)
+        except HTTPException as err:
+            raise SubscribeError from err
+        else:
+            self._cs_sub_id = data.get("item_id", None)
 
     async def unsubscribe(self) -> None:
-        try:
-            auth_token = self._http.state.login_token
-        except AttributeError:
-            auth_token = self.authenticity_token
+        """Removes a subscription corresponding to this item.
 
-        if auth_token is None or self.sub_id is None:
-            raise AO3Exception
+        Raises
+        ------
+        AuthError
+            Invalid authenticity token was used (might be expired or not logged in).
+        SubscribeError
+            Something went wrong in the subscription process.
+        """
 
+        auth_token = getattr(self._http.state, "login_token", self.authenticity_token)
+
+        if auth_token is None:
+            raise AuthError
+        if self.sub_id is None:
+            msg = "This item has not been subscribed to yet."
+            raise SubscribeError(msg)
+
+        assert self._http.state  # Not sure if this is accurate.
         client_username = self._http.state.client_user.username
-        await self._http.unsubscribe(auth_token, client_username, self.id, self.subable_type, self.sub_id)
-        self._cs_sub_id = None
+        try:
+            await self._http.unsubscribe(auth_token, client_username, self.id, self.subable_type, self.sub_id)
+        except HTTPException as err:
+            raise SubscribeError from err
+        else:
+            self._cs_sub_id = None
 
 
 class CommentableMixin:
@@ -303,12 +337,89 @@ class CommentableMixin:
 
 
 class CollectableMixin:
-    # Includes works and series (?)
-    async def collect(self) -> None:
-        ...
+    """A mixin that adds collection-related members and functionality to AO3 items that can be collected.
+
+    The following implement this mixin:
+
+    - :class:`ao3.Work`
+
+    This mixin must also implement :class:`ao3.abc.Page`.
+    """
+
+    __slots__ = ()
+
+    id: property | CachedSlotProperty[Self, int]
+    _http: HTTPClient
+    authenticity_token: CachedSlotProperty[Self, str | None]
+    url: property | str
+
+    async def collect(self, collections: list[str]) -> None:
+        """Invite and/or collect this item to a list of collections.
+
+        Raises
+        ------
+        AuthError
+            Invalid authenticity token was used (might be expired or not logged in).
+        CollectError
+            Something went wrong in the collection process.
+        """
+
+        auth_token = getattr(self._http.state, "login_token", self.authenticity_token)
+
+        if auth_token is None:
+            raise AuthError
+
+        try:
+            path = self.url.partition(".org")[-1]
+            resp, text = await self._http.collect(auth_token, path, ",".join(collections))
+        except HTTPException as err:
+            raise CollectError from err
+        else:
+            # TODO: Investigate if there's a better way to handle this.
+            # Since AO3 doesn't return negative response codes for this, apparently, we need to manually parse the page
+            # to determine success or failure.
+            if resp.status == 302 and resp.headers["Location"] == AO3_AUTH_ERROR_URL:
+                raise AuthError
+            if resp.status == 200:
+                element = html.fromstring(text)
+                notice_el, error_el = element.cssselect("div.notice"), element.cssselect("div.error")
+                if len(notice_el) == 0 and len(error_el) == 0:
+                    raise CollectError
+
+                if len(error_el) > 0:
+                    errors = [str(el.text_content()) for el in error_el[0].cssselect("ul")]
+
+                    if len(errors) > 0:
+                        msg = f"We couldn't add your submission to the following collection(s): {', '.join(errors)}"
+                        raise CollectError(msg)
+
+                    raise CollectError
 
 
 class Object:
+    """Represents a generic AO3 object.
+
+    This serves as a standin for user items when the full data to form those items isn't available.
+
+    Parameters
+    ----------
+    id : :class:`int` | None, optional
+        The ID of the object. This or `name` must be provided. Defaults to None.
+    name : :class:`str` | None, optional
+        The name of the object. This or `id` must be provided. Defaults to None.
+    type : type[:class:`Page`] | None, optional
+        The type of the object, which can be any Page subclasses. Defaults to None, which is substituted with `Object`.
+
+    Attributes
+    ----------
+    id : :class:`int` | None, optional
+        The ID of the object. Defaults to None.
+    name : :class:`str` | None, optional
+        The name of the object. Defaults to None.
+    type : type[:class:`Page`] | type[:class:`Object`]
+        The type of the object, which can be any Page subclasses. Defaults to `Object`.
+    """
+
     __slots__ = ("id", "name", "type")
 
     def __init__(
