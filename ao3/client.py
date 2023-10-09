@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from collections.abc import AsyncIterator
+from collections.abc import AsyncGenerator
 from typing import TYPE_CHECKING, Any, TypeAlias, TypeVar
 
 from lxml import html
@@ -177,9 +177,12 @@ class Client:
         start: int = 1,
         stop: int = 2,
         step: int = 1,
-    ) -> AsyncIterator[WorkSearch]:
-        """Returns an asynchronous iterator for work search results based on the given options through multiple pages of
-        results. It stops at the first empty results page.
+    ) -> AsyncGenerator[WorkSearch, None]:
+        """Returns an asynchronous generator for work search results based on the given options through multiple pages
+        of results. It stops at the first empty results page.
+
+        Can only iterate forwards, to reliably prevent requests to nonexistent pages from looping for longer than
+        necessary.
 
         Parameters
         ----------
@@ -188,7 +191,7 @@ class Client:
         start : :class:`int`, optional
             The starting page. By default 1.
         stop : :class:`int`, optional
-            The stoping page, which won't be included in the final result. By default 2.
+            The stopping page, which won't be included in the final result. By default 2.
         step : :class:`int`, optional
             The step size through which to iterate through the pages. By default 1.
 
@@ -198,12 +201,16 @@ class Client:
             The search result object holding the results for a particular page.
         """
 
+        if stop < start or step < 1:
+            msg = "Please specify your start, stop, and step such that you only iterate forwards."
+            raise RuntimeError(msg)
+
         for page_num in range(start, stop, step):
             options.page = page_num
             page_results = await self.search_works(options)
-            if len(page_results.results) == 0:
-                raise StopAsyncIteration
             yield page_results
+            if len(page_results.results) < 20:
+                break
 
     async def search_people(
         self,
@@ -246,9 +253,12 @@ class Client:
         start: int = 1,
         stop: int = 2,
         step: int = 1,
-    ) -> AsyncIterator[PeopleSearch]:
-        """Returns an asynchronous iterator for people search results based on the given options through multiple pages
+    ) -> AsyncGenerator[PeopleSearch, None]:
+        """Returns an asynchronous generator for people search results based on the given options through multiple pages
         of results. It stops at the first empty results page.
+
+        Can only iterate forwards, to reliably prevent requests to nonexistent pages from looping for longer than
+        necessary.
 
         Parameters
         ----------
@@ -261,7 +271,7 @@ class Client:
         start : :class:`int`, optional
             The starting page. By default 1.
         stop : :class:`int`, optional
-            The stoping page, which won't be included in the final result. By default 2.
+            The stopping page, which won't be included in the final result. By default 2.
         step : :class:`int`, optional
             The step size through which to iterate through the pages. By default 1.
 
@@ -269,13 +279,22 @@ class Client:
         ------
         :class:`PeopleSearch`
             The search result object holding the results for a particular page.
+
+        Raises
+        ------
+        RuntimeError
+            The start, stop, and step aren't configured for forward iteration.
         """
+
+        if stop < start or step < 1:
+            msg = "Please specify your start, stop, and step such that you only iterate forwards."
+            raise RuntimeError(msg)
 
         for page_num in range(start, stop, step):
             page_results = await self.search_people(page_num, any_field, names, fandoms)
-            if len(page_results.results) == 0:
-                raise StopAsyncIteration
             yield page_results
+            if len(page_results.results) < 20:
+                break
 
     async def search_bookmarks(self, options: BookmarkSearchOptions) -> BookmarkSearch:
         """Search for bookmarks based in the given options.
@@ -302,9 +321,12 @@ class Client:
         start: int = 1,
         stop: int = 2,
         step: int = 1,
-    ) -> AsyncIterator[BookmarkSearch]:
-        """Returns an asynchronous iterator for bookmark search results based on the given options through multiple
+    ) -> AsyncGenerator[BookmarkSearch, None]:
+        """Returns an asynchronous generator for bookmark search results based on the given options through multiple
         pages of results. It stops at the first empty results page.
+
+        Can only iterate forwards, to reliably prevent requests to nonexistent pages from looping for longer than
+        necessary.
 
         Parameters
         ----------
@@ -313,7 +335,7 @@ class Client:
         start : :class:`int`, optional
             The starting page. By default 1.
         stop : :class:`int`, optional
-            The stoping page, which won't be included in the final result. By default 2.
+            The stopping page, which won't be included in the final result. By default 2.
         step : :class:`int`, optional
             The step size through which to iterate through the pages. By default 1.
 
@@ -321,14 +343,23 @@ class Client:
         ------
         :class:`BookmarkSearch`
             The search result object holding the results for a particular page.
+
+        Raises
+        ------
+        RuntimeError
+            The start, stop, and step aren't configured for forward iteration.
         """
+
+        if stop < start or step < 1:
+            msg = "Please specify your start, stop, and step such that you only iterate forwards."
+            raise RuntimeError(msg)
 
         for page_num in range(start, stop, step):
             options.page = page_num
             page_results = await self.search_bookmarks(options)
-            if len(page_results.results) == 0:
-                raise StopAsyncIteration
             yield page_results
+            if len(page_results.results) < 20:
+                break
 
     async def search_tags(self, options: TagSearchOptions) -> TagSearch:
         """Search for tags based in the given options.
@@ -355,9 +386,12 @@ class Client:
         start: int = 1,
         stop: int = 2,
         step: int = 1,
-    ) -> AsyncIterator[TagSearch]:
-        """Returns an asynchronous iterator for tag search results based on the given options through multiple pages of
+    ) -> AsyncGenerator[TagSearch, None]:
+        """Returns an asynchronous generator for tag search results based on the given options through multiple pages of
         results. It stops at the first empty results page.
+
+        Can only iterate forwards, to reliably prevent requests to nonexistent pages from looping for longer than
+        necessary.
 
         Parameters
         ----------
@@ -366,7 +400,7 @@ class Client:
         start : :class:`int`, optional
             The starting page. By default 1.
         stop : :class:`int`, optional
-            The stoping page, which won't be included in the final result. By default 2.
+            The stopping page, which won't be included in the final result. By default 2.
         step : :class:`int`, optional
             The step size through which to iterate through the pages. By default 1.
 
@@ -374,11 +408,20 @@ class Client:
         ------
         :class:`TagSearch`
             The search result object holding the results for a particular page.
+
+        Raises
+        ------
+        RuntimeError
+            The start, stop, and step aren't configured for forward iteration.
         """
+
+        if stop < start or step < 1:
+            msg = "Please specify your start, stop, and step such that you only iterate forwards."
+            raise RuntimeError(msg)
 
         for page_num in range(start, stop, step):
             options.page = page_num
             page_results = await self.search_tags(options)
-            if len(page_results.results) == 0:
-                raise StopAsyncIteration
             yield page_results
+            if len(page_results.results) < 50:
+                break

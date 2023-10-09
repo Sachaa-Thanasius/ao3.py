@@ -324,6 +324,7 @@ class Search(Page, Generic[SP, R]):
     ----------
     id
     search_options
+    full_total
     results
     """
 
@@ -369,7 +370,7 @@ class Search(Page, Generic[SP, R]):
 
     @property
     def id(self) -> int:
-        """:class:`int`: The id of the model. By default 0 for searches."""
+        """:class:`int`: The ID of the model. By default 0 for searches."""
 
         return self._id
 

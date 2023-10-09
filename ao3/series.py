@@ -19,7 +19,16 @@ if TYPE_CHECKING:
 __all__ = ("Series",)
 
 
-class Series(Page, SubscribableMixin, BookmarkableMixin):
+class Series(Page, BookmarkableMixin, SubscribableMixin):
+    """A series on AO3.
+
+    This implements the following:
+
+    - :class:`Page`
+    - :class:`BookmarkableMixin`
+    - :class:`SubscribableMixin`
+    """
+
     __slots__ = (
         "_id",
         "_http",
@@ -66,6 +75,8 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @property
     def id(self) -> int:
+        """:class:`int`: The series's ID."""
+
         return self._id
 
     @property
@@ -84,10 +95,14 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @property
     def url(self) -> str:
+        """:class:`str`: The series's base URL."""
+
         return f"https://archiveofourown.org/series/{self.id}"
 
     @cached_slot_property("_cs_name")
     def name(self) -> str:
+        """:class:`str`: The series name."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -97,6 +112,8 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_creators")
     def creators(self) -> tuple[Object, ...]:
+        """tuple[:class:`Object`, ...]The series's creators, minimized as :class:`ao3.Object`s."""
+
         if self.raw_element is None:
             raise UnloadedError
         return tuple(
@@ -106,6 +123,11 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_date_begun")
     def date_begun(self) -> datetime.datetime | None:
+        """:class:`datetime.datetime` | None: The date the series began.
+
+        Might be None, which means unknown.
+        """
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -116,6 +138,11 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_date_updated")
     def date_updated(self) -> datetime.datetime | None:
+        """:class:`datetime.datetime` | None: The date the series was last updated.
+
+        Might be None, which means unknown.
+        """
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -126,6 +153,8 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_description")
     def description(self) -> str:
+        """:class:`str`: The series's description."""
+
         if self.raw_element is None:
             return ""
         try:
@@ -135,6 +164,8 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_notes")
     def notes(self) -> str:
+        """:class:`str`: Any notes the creators have written for the series."""
+
         if self.raw_element is None:
             return ""
         try:
@@ -144,6 +175,8 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_nwords")
     def nwords(self) -> int:
+        """:class:`int`: The total number of words in the series so far."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -154,6 +187,8 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_nworks")
     def nworks(self) -> int:
+        """:class:`int`: The number of works in the series so far."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -164,6 +199,8 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_nworks")
     def is_complete(self) -> bool:
+        """:class:`bool`: Whether the series is complete. Defaults to False if unknown."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -175,6 +212,7 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @cached_slot_property("_cs_nbookmarks")
     def nbookmarks(self) -> int:
+        """:class:`int`: The number of bookmarks on this series."""
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -185,10 +223,20 @@ class Series(Page, SubscribableMixin, BookmarkableMixin):
 
     @property
     def stats(self) -> tuple[int, int, bool, int]:
+        """tuple[:class:`int', :class:`int', :class:`bool', :class:`int']: A tuple with the most common series stats.
+
+        This includes the number of words, number of works, completion status, and number of bookmarks.
+        """
+
         return (self.nwords, self.nworks, self.is_complete, self.nbookmarks)
 
     @cached_slot_property("_cs_works_list")
     def works_list(self) -> tuple[Work, ...]:
+        """tuple[:class:`Work`, ...]: A tuple of works that make up this series.
+
+        This may take time to load, but will be cached for later references.
+        """
+
         from .work import Work  # To avoid an import cycle.
 
         if self.raw_element is None:

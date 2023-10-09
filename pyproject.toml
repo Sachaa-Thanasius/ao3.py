@@ -5,9 +5,9 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "ao3.py"
 description = "An asynchronous scraper for Archive Of Our Own, made in Python."
-readme = "README.md"
 requires-python = ">=3.10"
 version = "0.0.1"
+readme = { file = "README.rst", content-type = "text/x-rst" }
 license = { file = "LICENSE" }
 authors = [{ name = "Thanos", email = "111999343+Sachaa-Thanasius@users.noreply.github.com" }]
 classifiers = [
@@ -36,6 +36,7 @@ dependencies = [
 
 [project.optional-dependencies]
 speed = ["aiodns>=1.1", "Brotli", "cchardet"]
+docs = ["sphinx==7.2.6"]
 
 [project.urls]
 Homepage = "https://github.com/Sachaa-Thanasius/ao3.py"
@@ -120,7 +121,7 @@ property-decorators = ["ao3.utils.cached_slot_property"] # Similar enough to fun
 [tool.pyright]
 include = ["ao3", "tests"]
 venvPath = "."             # Necessary to point Pyright at the custom lxml-stubs.
-venv = ".venv"             # Necessary to point Pyright at the custom lxml-stubs.
+venv = ".venv"             # See previous comment.
 
 pythonVersion = "3.10"
 typeCheckingMode = "strict"

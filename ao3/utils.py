@@ -12,13 +12,84 @@ from .errors import InvalidURLError
 T = TypeVar("T")
 T_co = TypeVar("T_co", covariant=True)
 
-__all__ = (
-    "get_id_from_url",
-    "Constraint",
-)
-
 AO3_STORY_REGEX = re.compile(r"(?:https://|)(?:www\.|)archiveofourown\.org/(?:works|series)/(?P<id>\d+)")
 ICON_URL_USER_ID_REGEX = re.compile(r".*/(\d+)/")
+
+__all__ = (
+    "AO3_LOGO_URL",
+    "Constraint",
+    "get_id_from_url",
+)
+
+AO3_LOGO_URL = "https://archiveofourown.org/images/ao3_logos/logo.png"
+
+
+class CachedSlotProperty(Generic[T, T_co]):
+    """An implementation of a cached property for slotted classes.
+
+    Source: https://github.com/Rapptz/discord.py/blob/master/discord/utils.py#L208
+    """
+
+    def __init__(self, name: str, function: Callable[[T], T_co]) -> None:
+        self.name = name
+        self.function = function
+        self.__doc__ = function.__doc__
+
+    @overload
+    def __get__(self, instance: T, owner: type[T]) -> T_co:
+        ...
+
+    @overload
+    def __get__(self, instance: None, owner: type[T]) -> CachedSlotProperty[T, T_co]:
+        ...
+
+    def __get__(self, instance: T | None, owner: type[T]) -> T_co | CachedSlotProperty[T, T_co]:
+        if instance is None:
+            return self
+
+        try:
+            return getattr(instance, self.name)
+        except AttributeError:
+            value = self.function(instance)
+            setattr(instance, self.name, value)
+            return value
+
+
+def cached_slot_property(name: str) -> Callable[[Callable[[T], T_co]], CachedSlotProperty[T, T_co]]:
+    def decorator(func: Callable[[T], T_co]) -> CachedSlotProperty[T, T_co]:
+        return CachedSlotProperty(name, func)
+
+    return decorator
+
+
+class Constraint(NamedTuple):
+    """A representation for a constraint on integer amounts via a range.
+
+    Attributes
+    ----------
+    min_val : :class:`int`, default=0
+        The lower end of the constraint. Defaults to 0.
+    max_val : :class:`int` | None, optional
+        The upper bound of the constraint. Defaults to None.
+    """
+
+    min_val: int = 0
+    max_val: int | None = None
+
+    @property
+    def string(self) -> str:
+        """Stringify the constraint in a way that AO3 can understand."""
+
+        if self.min_val == 0 and self.max_val is None:
+            return ""
+        if self.min_val == 0:
+            return f"<{self.max_val}"
+        if self.max_val is None:
+            return f">{self.min_val}"
+        if self.min_val == self.max_val:
+            return str(self.min_val)
+
+        return f"{self.min_val}-{self.max_val}"
 
 
 def get_id_from_url(url: str, *, will_raise: bool = False) -> int | None:
@@ -96,78 +167,12 @@ def extract_pseud_id(element: html.HtmlElement, specified_pseud: str | None = No
     return None
 
 
-def int_or_none(data: str) -> int | None:
+def int_or_none(data: str | None) -> int | None:
     """Remove commas from a string and attempt conversion to an int. If anything fails along the way, return None."""
+    if data is None:
+        return None
 
     try:
         return int(data.replace(",", ""))
     except ValueError:
         return None
-
-
-class Constraint(NamedTuple):
-    """A representation for a constraint on integer amounts via a range.
-
-    Attributes
-    ----------
-    min_val : :class:`int`, default=0
-        The lower end of the constraint. Defaults to 0.
-    max_val : :class:`int` | None, optional
-        The upper bound of the constraint. Optional.
-    """
-
-    min_val: int = 0
-    max_val: int | None = None
-
-    @property
-    def string(self) -> str:
-        """Stringify the constraint in a way that AO3 can understand."""
-
-        if self.min_val == 0 and self.max_val is None:
-            return ""
-        if self.min_val == 0:
-            return f"<{self.max_val}"
-        if self.max_val is None:
-            return f">{self.min_val}"
-        if self.min_val == self.max_val:
-            return str(self.min_val)
-
-        return f"{self.min_val}-{self.max_val}"
-
-
-class CachedSlotProperty(Generic[T, T_co]):
-    """An implementation of a cached property for slotted classes.
-
-    Source: https://github.com/Rapptz/discord.py/blob/master/discord/utils.py#L208
-    """
-
-    def __init__(self, name: str, function: Callable[[T], T_co]) -> None:
-        self.name = name
-        self.function = function
-        self.__doc__ = function.__doc__
-
-    @overload
-    def __get__(self, instance: T, owner: type[T]) -> T_co:
-        ...
-
-    @overload
-    def __get__(self, instance: None, owner: type[T]) -> CachedSlotProperty[T, T_co]:
-        ...
-
-    def __get__(self, instance: T | None, owner: type[T]) -> T_co | CachedSlotProperty[T, T_co]:
-        if instance is None:
-            return self
-
-        try:
-            return getattr(instance, self.name)
-        except AttributeError:
-            value = self.function(instance)
-            setattr(instance, self.name, value)
-            return value
-
-
-def cached_slot_property(name: str) -> Callable[[Callable[[T], T_co]], CachedSlotProperty[T, T_co]]:
-    def decorator(func: Callable[[T], T_co]) -> CachedSlotProperty[T, T_co]:
-        return CachedSlotProperty(name, func)
-
-    return decorator

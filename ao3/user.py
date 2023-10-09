@@ -22,6 +22,19 @@ NUM_MATCH = re.compile(r".*\((?P<id>\d*)\)")
 
 
 class User(Page, SubscribableMixin):
+    """A user on AO3.
+
+    This implements the following:
+
+    - :class:`Page`
+    - :class:`SubscribableMixin`
+
+    Attributes
+    ----------
+    username : :class:`str`
+        The unique name of the user on AO3.
+    """
+
     __slots__ = (
         "username",
         "_id",
@@ -66,6 +79,8 @@ class User(Page, SubscribableMixin):
 
     @cached_slot_property("_id")
     def id(self) -> int:
+        """:class:`int`: The user's ID."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -89,10 +104,14 @@ class User(Page, SubscribableMixin):
 
     @property
     def url(self) -> str:
+        """:class:`str`: The user's base URL."""
+
         return f"https://archiveofourown.org/users/{self.username}"
 
     @cached_slot_property("_cs_avatar_url")
     def avatar_url(self) -> str:
+        """class:`str` The URL for the user's main avatar."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -102,12 +121,16 @@ class User(Page, SubscribableMixin):
 
     @cached_slot_property("_cs_pseuds")
     def pseuds(self) -> tuple[str, ...]:
+        """tuple[:class:`str`, ...]: A tuple of the user's pseud names."""
+
         if self.raw_element is None:
             raise UnloadedError
         return tuple(str(el.text) for el in USER_SELECTORS["pseuds"](self.raw_element))
 
     @cached_slot_property("_cs_date_joined")
     def date_joined(self) -> datetime.datetime | None:
+        """:class:`datetime.datetime` | None: The date the user joined AO3. Might be None."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -118,6 +141,8 @@ class User(Page, SubscribableMixin):
 
     @cached_slot_property("_cs_bio")
     def bio(self) -> str:
+        """:class:`str`: The bio blurb on the user's profile page."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -127,6 +152,8 @@ class User(Page, SubscribableMixin):
 
     @cached_slot_property("_cs_nworks")
     def nworks(self) -> int:
+        """:class:`int`: The number of works this user has written."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -138,6 +165,8 @@ class User(Page, SubscribableMixin):
 
     @cached_slot_property("_cs_nseries")
     def nseries(self) -> int:
+        """:class:`int`: The number of series this user has written."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -149,6 +178,8 @@ class User(Page, SubscribableMixin):
 
     @cached_slot_property("_cs_nbookmarks")
     def nbookmarks(self) -> int:
+        """:class:`int`: The number of bookmarks this user has."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -160,6 +191,8 @@ class User(Page, SubscribableMixin):
 
     @cached_slot_property("_cs_ncollections")
     def ncollections(self) -> int:
+        """:class:`int`: The number of collections this user has."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -171,6 +204,8 @@ class User(Page, SubscribableMixin):
 
     @cached_slot_property("_cs_ngifts")
     def ngifts(self) -> int:
+        """:class:`int`: The number of gifts this user has been given."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:

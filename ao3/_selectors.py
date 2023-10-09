@@ -11,8 +11,9 @@ __all__ = (
 
 CSSSelector = partial(cssselect.CSSSelector, translator="html")
 
-# Selectors for a work's front page.
+
 # fmt: off
+# Selectors for a work's front page.
 WORK_SELECTORS = {
     "sub_id":           CSSSelector("ul.work.navigation.actions li.subscribe form"),
     "title":            CSSSelector("h2.title"),
@@ -37,18 +38,18 @@ WORK_SELECTORS = {
     "nbookmarks":       CSSSelector("dl.work.meta.group dl.stats > dd.bookmarks"),
     "nhits":            CSSSelector("dl.work.meta.group dl.stats > dd.hits"),
 }
-# fmt: on
+
 
 # Selectors for a work stub on a series/user/search/etc. page.
 SEARCH_SELECTOR = {
-    "work": CSSSelector("li.work.blurb.group"),
-    "people": CSSSelector("li.user.blurb.group"),
-    "bookmark": CSSSelector("li.bookmark.blurb.group"),
-    "tag": CSSSelector("ol.tag.index.group > li"),
+    "work":             CSSSelector("li.work.blurb.group"),
+    "people":           CSSSelector("li.user.blurb.group"),
+    "bookmark":         CSSSelector("li.bookmark.blurb.group"),
+    "tag":              CSSSelector("ol.tag.index.group > li"),
 }
 
+
 # Selectors for a series page.
-# fmt: off
 SERIES_SELECTORS = {
     "sub_btn":          CSSSelector('form[data-create-value="Subscribe"]'),
     "name":             CSSSelector("div#main > h2.heading"),
@@ -58,10 +59,9 @@ SERIES_SELECTORS = {
     "stats":            CSSSelector("dl.series.meta.group > dd.stats > dl.stats > dd"),
     "works":            CSSSelector("ul.series.work.index.group > li"),
 }
-# fmt: on
+
 
 # Selectors for a user's profile page.
-# fmt: off
 USER_SELECTORS = {
     "profile_info":     CSSSelector("dl.meta dd"),
     "sub_id":           CSSSelector("div.primary.header.module form[action]"),

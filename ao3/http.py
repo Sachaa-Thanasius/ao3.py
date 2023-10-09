@@ -27,7 +27,7 @@ LOGGER = logging.getLogger(__name__)
 
 __all__ = ("HTTPClient",)
 
-AO3_BASE = "https://archiveofourown.org"
+AO3_BASE_URL = "https://archiveofourown.org"
 
 
 class Route:
@@ -50,7 +50,7 @@ class Route:
     def __init__(self, verb: HTTPVerb, path: str, **parameters: Any) -> None:
         self.verb = verb
         self.path = path
-        url = AO3_BASE + path
+        url = AO3_BASE_URL + path
         if parameters:
             url = url.format_map({k: uriquote(v) if isinstance(v, str) else v for k, v in parameters.items()})
         self.url = url

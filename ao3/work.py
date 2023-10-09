@@ -25,6 +25,17 @@ __all__ = ("Work",)
 
 
 class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, CollectableMixin):
+    """A work on AO3.
+
+    This implements the following:
+
+    - :class:`Page`
+    - :class:`KudoableMixin`
+    - :class:`BookmarkableMixin`
+    - :class:`SubscribableMixin`
+    - :class:`CollectableMixin`
+    """
+
     __slots__ = (
         "_id",
         "_http",
@@ -81,6 +92,8 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @property
     def id(self) -> int:
+        """:class:`int`: The work's ID."""
+
         return self._id
 
     @property
@@ -101,10 +114,14 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @property
     def url(self) -> str:
+        """:class:`str`: The work's base URL."""
+
         return f"https://archiveofourown.org/works/{self.id}"
 
     @cached_slot_property("_cs_title")
     def title(self) -> str:
+        """:class:`str`: The work's title."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -114,6 +131,8 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_authors")
     def authors(self) -> tuple[Object, ...]:
+        """tuple[:class:`Object`, ...]: The work's authors, minimized as :class:`ao3.Object`s."""
+
         from .user import User  # Avoid circular import.
 
         # Consider implementing PartialUser and using it here.
@@ -126,6 +145,8 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_summary")
     def summary(self) -> str:
+        """:class:`str`: The work's summary."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -135,6 +156,8 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_series")
     def series(self) -> tuple[Object, ...]:
+        """:class:`str`: The series this work is a part of, minimized as :class:`ao3.Object`s."""
+
         from .series import Series  # Avoid circular import.
 
         # Consider implementing PartialSeries and using it here.
@@ -147,12 +170,19 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_restricted")
     def is_restricted(self) -> bool:
+        """:class:`bool`: Whether the work is restricted to logged in users."""
+
         if self.raw_element is None:
             return False
         return len(WORK_SELECTORS["restricted"](self.raw_element)) > 0
 
     @cached_slot_property("_cs_rating")
     def rating(self) -> str:
+        """:class:`str`: The work's rating.
+
+        e.g. "General Audences", "Teen And Up Audiences", "Mature", "Explicit", "No Rating".
+        """
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -162,45 +192,84 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_warnings")
     def warnings(self) -> tuple[str, ...]:
+        """tuple[:class:`str`, ...]: The work's content warnings.
+
+        e.g. "Graphic Depictions of Violence", "Major Character Death", "Underage", etc.
+        """
         if self.raw_element is None:
             raise UnloadedError
         return tuple(str(el.text_content()) for el in WORK_SELECTORS["warnings"](self.raw_element))
 
     @cached_slot_property("_cs_categories")
     def categories(self) -> tuple[str, ...]:
+        """tuple[:class:`str`, ...]: The work's category tags."""
+
         if self.raw_element is None:
             raise UnloadedError
         return tuple(str(el.text_content()) for el in WORK_SELECTORS["categories"](self.raw_element))
 
     @cached_slot_property("_cs_fandoms")
     def fandoms(self) -> tuple[str, ...]:
+        """tuple[:class:`str`, ...]: The fandoms this work is a part of."""
+
         if self.raw_element is None:
             raise UnloadedError
         return tuple(str(el.text_content()) for el in WORK_SELECTORS["fandoms"](self.raw_element))
 
     @cached_slot_property("_cs_relationships")
     def relationships(self) -> tuple[str, ...]:
+        """tuple[:class:`str`, ...]: The work's relationship tags."""
+
         if self.raw_element is None:
             raise UnloadedError
         return tuple(str(el.text_content()) for el in WORK_SELECTORS["relationships"](self.raw_element))
 
     @cached_slot_property("_cs_characters")
     def characters(self) -> tuple[str, ...]:
+        """tuple[:class:`str`, ...]: The work's character tags."""
+
         if self.raw_element is None:
             raise UnloadedError
         return tuple(str(el.text_content()) for el in WORK_SELECTORS["characters"](self.raw_element))
 
     @cached_slot_property("_cs_freeforms")
     def freeforms(self) -> tuple[str, ...]:
+        """tuple[:class:`str`, ...]: The work's additional tags."""
+
         if self.raw_element is None:
             raise UnloadedError
         return tuple(str(el.text_content()) for el in WORK_SELECTORS["freeforms"](self.raw_element))
 
     def all_tags(self) -> Iterator[str]:
-        return chain(self.warnings, self.relationships, self.characters, self.freeforms, self.categories)
+        """An lazy iterator that provides all of this work's "tags" in one go.
+
+        This includes, in order: rating, warnings, categories, fandoms, relationships, characters, and additional tags.
+
+        Returns
+        -------
+        Iterator[:class:`str`]
+            An iterator for all the work's tags.
+
+        Yields
+        ------
+        :class:`str`
+            The name of a tag.
+        """
+
+        return chain(
+            self.rating,
+            self.warnings,
+            self.categories,
+            self.fandoms,
+            self.relationships,
+            self.characters,
+            self.freeforms,
+        )
 
     @cached_slot_property("_cs_language")
     def language(self) -> Language:
+        """:class:`Language`: The language this work is written in."""
+
         if self.raw_element is None:
             return Language.UNKNOWN
         try:
@@ -210,6 +279,8 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_date_published")
     def date_published(self) -> datetime.datetime | None:
+        """:class:`datetime.datetime`: The date this work was first published. Might be None."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -220,6 +291,8 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_date_updated")
     def date_updated(self) -> datetime.datetime | None:
+        """:class:`datetime.datetime`: The date this work was last edited. Might be None."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -229,7 +302,9 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
             return None
 
     @cached_slot_property("_cs_nwords")
-    def nwords(self) -> int | None:
+    def nwords(self) -> int:
+        """:class:`int`: The number of words in this work."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -240,6 +315,11 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_nchapters")
     def nchapters(self) -> tuple[int | None, int | None]:
+        """tuple[:class:`int | None, :class:`int | None]: A tuple of the work's current chapters and expected chapters.
+
+        The expected chapters element might be None if not specified.
+        """
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -251,6 +331,8 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @property
     def is_complete(self) -> bool:
+        """:class:`bool`: Whether the work has been completed."""
+
         current, expected = self.nchapters
         if isinstance(current, type(expected)):
             return current == expected
@@ -258,6 +340,8 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_ncomments")
     def ncomments(self) -> int:
+        """:class:`int`: The number of comments on this work."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -268,6 +352,8 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_nkudos")
     def nkudos(self) -> int:
+        """:class:`int`: The number of kudos on this work."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -278,6 +364,8 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_nbookmarks")
     def nbookmarks(self) -> int:
+        """:class:`int`: The number of bookmarks on this work."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -288,6 +376,8 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_nhits")
     def nhits(self) -> int:
+        """:class:`int`: The number of hits on this work."""
+
         if self.raw_element is None:
             raise UnloadedError
         try:
@@ -298,6 +388,11 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @property
     def stats(self) -> tuple[int, int, int, int]:
+        """tuple[:class:`int', :class:`int', :class:`int', :class:`int']: A tuple with the most common work stats.
+
+        This includes the number of comments, kudos, bookmarks, and hits.
+        """
+
         return (self.ncomments, self.nkudos, self.nbookmarks, self.nhits)
 
     @classmethod
