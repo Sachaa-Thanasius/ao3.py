@@ -35,11 +35,11 @@ class Route:
 
     Parameters
     ----------
-    verb : :class:`str`
+    verb: :class:`str`
         The HTTP request to make, e.g. ``"GET"``.
-    path : :class:`str`
+    path: :class:`str`
         The prepended path to the API endpoint you want to hit, e.g. ``"/user/{user_id}/profile"``.
-    **parameters : Any
+    **parameters: Any
         Special keyword arguments that will be substituted into the corresponding spot in the `path` where the key is
         present, e.g. if your parameters are ``user_id=1234`` and your path is ``"user/{user_id}/profile"``, the path
         will become ``"user/1234/profile"``.

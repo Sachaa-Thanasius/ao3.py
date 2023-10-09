@@ -26,7 +26,24 @@ class AO3Exception(Exception):
 
 
 class HTTPException(AO3Exception):
-    """Exception that's raised when something goes wrong during an HTTP request."""
+    """Exception that's raised when something goes wrong during an HTTP request.
+
+    Parameters
+    ----------
+    response: :class:`aiohttp.ClientResponse`
+        The HTTP response that caused this error.
+    message: :class:`str`
+        The given message accompanying this error to be added to the error display.
+
+    Attributes
+    ----------
+    response: :class:`aiohttp.ClientResponse`
+        The HTTP response that caused this error.
+    status: :class:`int`
+        The HTTP status or code of the response.
+    text: :class:`str`
+        The message accompanying this error that will be part of the error display.
+    """
 
     def __init__(self, response: ClientResponse, message: str | None = None) -> None:
         self.response = response

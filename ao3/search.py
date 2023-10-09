@@ -9,9 +9,10 @@ from typing import TYPE_CHECKING, Any, Generic, Literal, TypeVar
 from lxml import html
 
 from ._selectors import SEARCH_SELECTOR
-from .abc import Object, Page
+from .abc import Page
 from .enums import ArchiveWarningId, CategoryId, Language, RatingId
 from .errors import UnloadedError
+from .object import Object
 from .utils import Constraint, cached_slot_property
 
 
@@ -28,6 +29,10 @@ __all__ = (
     "BookmarkSearchOptions",
     "TagSearchOptions",
     "Search",
+    "WorkSearch",
+    "PeopleSearch",
+    "BookmarkSearch",
+    "TagSearch",
 )
 
 TAG_SECTIONS = re.compile(r"(?P<type>.*): (?P<name>.*)\u200E\((?P<count>\d+)\)")
@@ -39,13 +44,13 @@ class TagInfo:
 
     Attributes
     ----------
-    type : :class:`str`
+    type: :class:`str`
         The type of tag, e.g. "Character", "Relationship", "FreeForm", etc.
-    name : :class:`str`
+    name: :class:`str`
         The name of the tag.
-    count : :class:`int`
+    count: :class:`int`
         The number of works that bear this tag.
-    canonical : :class:`bool`, optional
+    canonical: :class:`bool`, optional
         Whether the tag is canonical.
     """
 
@@ -61,7 +66,7 @@ class SearchOptions:
 
     Attributes
     ----------
-    page : :class:`int`, optional
+    page: :class:`int`, optional
         The page of the seach results to get. By default 1.
     """
 
@@ -85,59 +90,59 @@ class WorkSearchOptions(SearchOptions):
 
     Attributes
     ----------
-    any_field : :class:`str`, optional
+    any_field: :class:`str`, optional
         Searches all the fields associated with a work in the AO3 database, including summary, notes and tags, but not
         the full work text. By default the empty string.
-    title : :class:`str`, optional
+    title: :class:`str`, optional
         Text in the titles of works. By default the empty string.
-    author : :class:`str`, optional
+    author: :class:`str`, optional
         Text in the names of authors of works. By default the empty string.
-    revised_at : :class:`str`, optional
+    revised_at: :class:`str`, optional
         By default the empty string.
-    complete : :class:`bool` | None, optional
+    complete: :class:`bool` | None, optional
         Whether to filter by completion status and which type. True is only completed, False is only not completed. By
         default None, which gets both.
-    crossover : :class:`bool` | None, optional
+    crossover: :class:`bool` | None, optional
         Whether to filter by completion status and which type. True is only crossovers, False is only non-crossovers.
         By default None.
-    single_chapter : :class:`bool`, optional
+    single_chapter: :class:`bool`, optional
         Whether all results should be single chapters or "oneshots". By default False.
-    word_count : :class:`Constraint` | None, optional
+    word_count: :class:`Constraint` | None, optional
         A word count range with an optional minimum and maximum. See :class:`Constraint` for more info on how to
         construct that. By default None.
-    language_id : :class:`Language` | None, optional
+    language_id: :class:`Language` | None, optional
         What language to filter by. By default None.
-    fandom_names : Sequence[:class:`str`], optional
+    fandom_names: Sequence[:class:`str`], optional
         What fandoms to filter by. By default an empty list.
-    rating_ids : :class:`RatingId` | None, optional
+    rating_ids: :class:`RatingId` | None, optional
         What rating to filter by. By default None.
-    archive_warning_ids : Sequence[:class:`ArchiveWarningId`], optional
+    archive_warning_ids: Sequence[:class:`ArchiveWarningId`], optional
         A list of archive warnings to filter by. By default an empty list.
-    category_ids : Sequence[:class:`CategoryId`], optional
+    category_ids: Sequence[:class:`CategoryId`], optional
         A list of categories to filter by. By default an empty list.
-    character_names : Sequence[:class:`str`], optional
+    character_names: Sequence[:class:`str`], optional
         A list of character tags to filter by. By default an empty list.
-    relationship_names : Sequence[:class:`str`], optional
+    relationship_names: Sequence[:class:`str`], optional
         A list of relationship tags to filter by. By default an empty list.
-    freeform_names : Sequence[:class:`str`], optional
+    freeform_names: Sequence[:class:`str`], optional
         A list of freeform tags to filter by. By default an empty list.
-    hits : :class:`Constraint` | None, optional
+    hits: :class:`Constraint` | None, optional
         A word count range with an optional minimum and maximum. See :class:`Constraint` for more info on how to
         construct that. By default None.
-    kudos_count : :class:`Constraint` | None, optional
+    kudos_count: :class:`Constraint` | None, optional
         A word count range with an optional minimum and maximum. See :class:`Constraint` for more info on how to
         construct that. By default None.
-    comments_count : :class:`Constraint` | None, optional
+    comments_count: :class:`Constraint` | None, optional
         A word count range with an optional minimum and maximum. See :class:`Constraint` for more info on how to
         construct that. By default None.
-    bookmarks_count : :class:`Constraint` | None, optional
+    bookmarks_count: :class:`Constraint` | None, optional
         A word count range with an optional minimum and maximum. See :class:`Constraint` for more info on how to
         construct that. By default None.
-    excluded_tag_names : Sequence[:class:`str`], optional
+    excluded_tag_names: Sequence[:class:`str`], optional
         A list of tags to exclude from the search results. By default an empty list.
-    sort_column : :class:`str`, optional
+    sort_column: :class:`str`, optional
         What filter option to sort by. By default "_score", which means "Best Match".
-    sort_direction : Literal["asc", "desc"], optional
+    sort_direction: Literal["asc", "desc"], optional
         What direction to sort by. By default "desc".
     """
 
@@ -202,11 +207,11 @@ class PeopleSearchOptions(SearchOptions):
 
     Attributes
     ----------
-    any_field : :class:`str`, optional
+    any_field: :class:`str`, optional
         Searches all the fields associated with a person in the AO3 database. By default the empty string.
-    names : Sequence[:class:`str`], optional
+    names: Sequence[:class:`str`], optional
         What usernames to filter by. By default an empty list.
-    fandoms : Sequence[:class:`str`], optional
+    fandoms: Sequence[:class:`str`], optional
         What fandoms to filter by, i.e. only pulling users that have written in these fandoms. By default an empty list.
     """
 
@@ -226,38 +231,38 @@ class BookmarkSearchOptions(SearchOptions):
 
     Attributes
     ----------
-    any_field : :class:`str`, optional
+    any_field: :class:`str`, optional
         Searches all the fields associated with a work that has been bookmarked in the AO3 database. By default the
         empty string.
-    work_tags : Sequence[:class:`str`], optional
+    work_tags: Sequence[:class:`str`], optional
         What tags to filter by that are on the actual bookmarked work. By default an empty list.
-    type_ : Literal["Work", "Series", "External Work"] | None , optional
+    type: Literal["Work", "Series", "External Work"] | None , optional
         What type of bookmarked work to filter by. By default None.
-    language_id : :class:`Language` | None, optional
+    language_id: :class:`Language` | None, optional
         What language to filter by. By default None.
-    work_updated : :class:`str`, optional
+    work_updated: :class:`str`, optional
         A range of time within which the bookmarked work was last updated. By default the empty string.
-    any_bookmark_field : :class:`str`, optional
+    any_bookmark_field: :class:`str`, optional
         Searches all the fields associated with a bookmark in the AO3 database, including notes and tags. By default
         the empty string.
-    bookmark_tags : Sequence[:class:`str`], optional
+    bookmark_tags: Sequence[:class:`str`], optional
         A list of bookmark tags to filter by. These are tags not present on the bookmarked work itself. By default an
         empty list.
-    bookmarker : :class:`str`, optional
+    bookmarker: :class:`str`, optional
         Text in the names of the bookmarkers to filter by. By default the empty string.
-    notes : :class:`str`, optional
+    notes: :class:`str`, optional
         Terms in the notes of the bookmarks to filter by. By default the empty string.
     recommended: :class:`bool`, optional
         Whether to limit the search to bookmarks that have been recommended. By default False.
     with_notes: :class:`bool`, optional
         Whether to limit the search to bookmarks that have notes. By default False.
-    sort_column : Literal["created_at", "bookmarkable_date"] | None, optional
+    sort_column: Literal["created_at", "bookmarkable_date"] | None, optional
         What filter option to sort by. By default "_score", which means "Best Match".
     """
 
     any_field: str = ""
     work_tags: Sequence[str] = field(default_factory=list)
-    type_: Literal["Work", "Series", "External Work"] | None = None
+    type: Literal["Work", "Series", "External Work"] | None = None
     language_id: Language | None = None
     work_updated: str = ""
     any_bookmark_field: str = ""
@@ -285,24 +290,24 @@ class TagSearchOptions(SearchOptions):
 
     Attributes
     ----------
-    any_field : :class:`str`, optional
+    any_field: :class:`str`, optional
         Searches all the fields associated with a person in the AO3 database. By default the empty string.
-    names : :class:`str`, optional
+    names: :class:`str`, optional
         What text in usernames to filter by. By default the empty string.
-    fandoms : Sequence[:class:`str`], optional
+    fandoms: Sequence[:class:`str`], optional
         What fandoms to filter by, i.e. only pulling tags that are specific to these fandoms. By default an empty list.
-    type_ : Literal["Fandom", "Character", "Relationship", "Freeform"] | None, optional
+    type: Literal["Fandom", "Character", "Relationship", "Freeform"] | None, optional
         What type of high-level tag to filter by. By default None.
-    wranging_status : :class:`bool` | None, optional
+    wranging_status: :class:`bool` | None, optional
         Whether to limit tags by a particular wrangling status. True is canonical, False is non-canonical, and None is
         all. By default None.
-    sort_direction : Literal["asc", "desc"], optional
+    sort_direction: Literal["asc", "desc"], optional
         What direction to sort by. By default "desc".
     """
 
     name: str = ""
     fandoms: Sequence[str] = field(default_factory=list)
-    type_: Literal["Fandom", "Character", "Relationship", "Freeform"] | None = None
+    type: Literal["Fandom", "Character", "Relationship", "Freeform"] | None = None
     wranging_status: bool | None = None
     sort_column: Literal["name", "created_at"] = "name"
     sort_direction: Literal["asc", "desc"] = "asc"
@@ -318,15 +323,7 @@ class TagSearchOptions(SearchOptions):
 
 
 class Search(Page, Generic[SP, R]):
-    """The base class for AO3 search results.
-
-    Attributes
-    ----------
-    id
-    search_options
-    full_total
-    results
-    """
+    """The base class for AO3 search results."""
 
     __slots__ = (
         "_id",

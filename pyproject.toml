@@ -36,7 +36,7 @@ dependencies = [
 
 [project.optional-dependencies]
 speed = ["aiodns>=1.1", "Brotli", "cchardet"]
-docs = ["sphinx==7.2.6"]
+docs = ["sphinx", "furo", "sphinxcontrib-trio"]
 
 [project.urls]
 Homepage = "https://github.com/Sachaa-Thanasius/ao3.py"

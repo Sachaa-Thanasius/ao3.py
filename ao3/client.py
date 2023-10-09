@@ -60,9 +60,9 @@ class Client:
 
         Parameters
         ----------
-        username : :class:`str` | None, optional
+        username: :class:`str` | None, optional
             The AO3 account username. By default None.
-        password : :class:`str` | None, optional
+        password: :class:`str` | None, optional
             The AO3 account password. By default None.
 
         Raises
@@ -85,7 +85,7 @@ class Client:
 
         Parameters
         ----------
-        work_id : :class:`int`
+        work_id: :class:`int`
             The ID to search for.
 
         Returns
@@ -109,7 +109,7 @@ class Client:
 
         Parameters
         ----------
-        series_id : :class:`int`
+        series_id: :class:`int`
             The ID to search for.
 
         Returns
@@ -133,7 +133,7 @@ class Client:
 
         Parameters
         ----------
-        username : :class:`str`
+        username: :class:`str`
             The username to search for.
 
         Returns
@@ -157,7 +157,7 @@ class Client:
 
         Parameters
         ----------
-        options : :class:`WorkSearchOptions`
+        options: :class:`WorkSearchOptions`
             The options with which to narrow the search. See :class:`WorkSearchOptions` for more information.
 
         Returns
@@ -186,13 +186,13 @@ class Client:
 
         Parameters
         ----------
-        options : :class:`WorkSearchOptions`
+        options: :class:`WorkSearchOptions`
             The options with which to narrow the search. See :class:`WorkSearchOptions` for more information.
-        start : :class:`int`, optional
+        start: :class:`int`, optional
             The starting page. By default 1.
-        stop : :class:`int`, optional
+        stop: :class:`int`, optional
             The stopping page, which won't be included in the final result. By default 2.
-        step : :class:`int`, optional
+        step: :class:`int`, optional
             The step size through which to iterate through the pages. By default 1.
 
         Yields
@@ -223,13 +223,13 @@ class Client:
 
         Parameters
         ----------
-        page : :class:`int`, optional
+        page: :class:`int`, optional
             The page number of the results to get. By default 1.
-        any_field : :class:`str`, optional
+        any_field: :class:`str`, optional
             Text which can apply to any of the below fields. By default the empty string.
-        names : list[:class:`str`] | None, optional
+        names: list[:class:`str`] | None, optional
             The names of the people to search. By default None.
-        fandoms : list[:class:`str`] | None, optional
+        fandoms: list[:class:`str`] | None, optional
             The names of the fandoms within which to search. By default None.
 
         Returns
@@ -262,17 +262,17 @@ class Client:
 
         Parameters
         ----------
-        any_field : :class:`str`, optional
+        any_field: :class:`str`, optional
             Text which can apply to any of the below fields. By default the empty string.
-        names : list[:class:`str`] | None, optional
+        names: list[:class:`str`] | None, optional
             The names of the people to search. By default None.
-        fandoms : list[:class:`str`] | None, optional
+        fandoms: list[:class:`str`] | None, optional
             The names of the fandoms within which to search. By default None.
-        start : :class:`int`, optional
+        start: :class:`int`, optional
             The starting page. By default 1.
-        stop : :class:`int`, optional
+        stop: :class:`int`, optional
             The stopping page, which won't be included in the final result. By default 2.
-        step : :class:`int`, optional
+        step: :class:`int`, optional
             The step size through which to iterate through the pages. By default 1.
 
         Yields
@@ -301,7 +301,7 @@ class Client:
 
         Parameters
         ----------
-        options : :class:`BookmarkSearchOptions`
+        options: :class:`BookmarkSearchOptions`
             The options with which to narrow the search. See :class:`BookmarkSearchOptions` for more information.
 
         Returns
@@ -330,13 +330,13 @@ class Client:
 
         Parameters
         ----------
-        options : :class:`BookmarkSearchOptions`
+        options: :class:`BookmarkSearchOptions`
             The options with which to narrow the search. See :class:`BookmarkSearchOptions` for more information.
-        start : :class:`int`, optional
+        start: :class:`int`, optional
             The starting page. By default 1.
-        stop : :class:`int`, optional
+        stop: :class:`int`, optional
             The stopping page, which won't be included in the final result. By default 2.
-        step : :class:`int`, optional
+        step: :class:`int`, optional
             The step size through which to iterate through the pages. By default 1.
 
         Yields
@@ -366,7 +366,7 @@ class Client:
 
         Parameters
         ----------
-        options : :class:`TagSearchOptions`
+        options: :class:`TagSearchOptions`
             The options with which to narrow the search. See :class:`TagSearchOptions` for more information.
 
         Returns
@@ -395,13 +395,13 @@ class Client:
 
         Parameters
         ----------
-        options : :class:`TagSearchOptions`
+        options: :class:`TagSearchOptions`
             The options with which to narrow the search. See :class:`TagSearchOptions` for more information.
-        start : :class:`int`, optional
+        start: :class:`int`, optional
             The starting page. By default 1.
-        stop : :class:`int`, optional
+        stop: :class:`int`, optional
             The stopping page, which won't be included in the final result. By default 2.
-        step : :class:`int`, optional
+        step: :class:`int`, optional
             The step size through which to iterate through the pages. By default 1.
 
         Yields

@@ -31,7 +31,7 @@ class User(Page, SubscribableMixin):
 
     Attributes
     ----------
-    username : :class:`str`
+    username: :class:`str`
         The unique name of the user on AO3.
     """
 

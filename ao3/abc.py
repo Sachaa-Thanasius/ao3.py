@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Protocol, SupportsInt, TypeAlias, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, runtime_checkable
 
 from .errors import (
     AO3_AUTH_ERROR_URL,
@@ -25,8 +25,6 @@ if TYPE_CHECKING:
 else:
     Self: TypeAlias = Any
 
-SupportsIntCast = SupportsInt | str | bytes | bytearray
-
 __all__ = (
     "Page",
     "KudoableMixin",
@@ -34,7 +32,6 @@ __all__ = (
     "SubscribableMixin",
     "CommentableMixin",
     "CollectableMixin",
-    "Object",
 )
 
 
@@ -44,7 +41,7 @@ class Page(Protocol):
 
     Attributes
     ----------
-    id : :class:`int`
+    id: :class:`int`
         The item's ID. Unique for all items within their categories, excluding search-related ones that default to 0.
     """
 
@@ -57,7 +54,7 @@ class Page(Protocol):
 
     @property
     def raw_element(self) -> html.HtmlElement | None:
-        """:class:`html.HtmlElement` | None : A representation of the raw HTML for this item's corresponding AO3
+        """:class:`html.HtmlElement` | None: A representation of the raw HTML for this item's corresponding AO3
         webpage.
 
         If not provided, then this is ``None``.
@@ -96,7 +93,7 @@ class KudoableMixin:
 
     @property
     def kudoable_type(self) -> str:
-        """:class:`str` : The type of this item in respect to AO3's kudo mechanism."""
+        """:class:`str`: The type of this item in respect to AO3's kudo mechanism."""
 
         raise NotImplementedError
 
@@ -169,17 +166,17 @@ class BookmarkableMixin:
 
         Parameters
         ----------
-        notes : :class:`str`, optional
+        notes: :class:`str`, optional
             The notes to add to this bookmark. By default "".
-        tags : list[:class:`str`] | None, optional
+        tags: list[:class:`str`] | None, optional
             The tags to add to this bookmark. By default None.
-        collections : list[:class:`str`] | None, optional
+        collections: list[:class:`str`] | None, optional
             The collections to add this bookmark to. By default None.
-        private : :class:`bool`, optional
+        private: :class:`bool`, optional
             Whether to make this bookmark private. By default False.
-        recommend : :class:`bool`, optional
+        recommend: :class:`bool`, optional
             Whether to recommend this bookmark. By default False.
-        as_pseud : :class:`str` | None, optional
+        as_pseud: :class:`str` | None, optional
             Which pseud to make this bookmark as. By default None, which means the default pseud will be used.
 
         Raises
@@ -264,7 +261,7 @@ class SubscribableMixin:
 
     @property
     def subable_type(self) -> str:
-        """:class:`str` : The type of this item in respect to AO3's subscription mechanism."""
+        """:class:`str`: The type of this item in respect to AO3's subscription mechanism."""
 
         raise NotImplementedError
 
@@ -394,65 +391,3 @@ class CollectableMixin:
                         raise CollectError(msg)
 
                     raise CollectError
-
-
-class Object:
-    """Represents a generic AO3 object.
-
-    This serves as a standin for user items when the full data to form those items isn't available.
-
-    Parameters
-    ----------
-    id : :class:`int` | None, optional
-        The ID of the object. This or `name` must be provided. Defaults to None.
-    name : :class:`str` | None, optional
-        The name of the object. This or `id` must be provided. Defaults to None.
-    type : type[:class:`Page`] | None, optional
-        The type of the object, which can be any Page subclasses. Defaults to None, which is substituted with `Object`.
-
-    Attributes
-    ----------
-    id : :class:`int` | None, optional
-        The ID of the object. Defaults to None.
-    name : :class:`str` | None, optional
-        The name of the object. Defaults to None.
-    type : type[:class:`Page`] | type[:class:`Object`]
-        The type of the object, which can be any Page subclasses. Defaults to `Object`.
-    """
-
-    __slots__ = ("id", "name", "type")
-
-    def __init__(
-        self,
-        *,
-        id: SupportsIntCast | None = None,
-        name: str | None = None,
-        type: type[Page] | None = None,
-    ) -> None:
-        if id is None and name is None:
-            msg = "At least one of id and name must be specified."
-            raise ValueError(msg)
-
-        if id is not None:
-            try:
-                id = int(id)
-            except ValueError:
-                msg = f"id parameter must be int-compatible, not {id.__class__}"
-                raise ValueError(msg) from None
-
-        self.id = id
-        self.name = name
-        self.type = type or self.__class__
-
-    def __eq__(self, __value: object) -> bool:
-        if isinstance(__value, self.type):
-            return self.id == __value.id
-        return NotImplemented
-
-    def __hash__(self) -> int:
-        return hash(tuple(attr for attr in (self.id, self.name, self.type) if attr is not None))
-
-    def __repr__(self) -> str:
-        attrs = ("id", "name", "type")
-        resolved = (f"{attr}={val}" for attr in attrs if (val := getattr(self, attr)) is not None)
-        return f"{type(self).__name__}({' '.join(resolved)})"

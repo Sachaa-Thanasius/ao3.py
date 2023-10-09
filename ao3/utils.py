@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
-from typing import Generic, NamedTuple, TypeVar, overload
+from dataclasses import dataclass
+from typing import Generic, TypeVar, overload
 
 from lxml import html
 
@@ -16,7 +17,6 @@ AO3_STORY_REGEX = re.compile(r"(?:https://|)(?:www\.|)archiveofourown\.org/(?:wo
 ICON_URL_USER_ID_REGEX = re.compile(r".*/(\d+)/")
 
 __all__ = (
-    "AO3_LOGO_URL",
     "Constraint",
     "get_id_from_url",
 )
@@ -62,14 +62,15 @@ def cached_slot_property(name: str) -> Callable[[Callable[[T], T_co]], CachedSlo
     return decorator
 
 
-class Constraint(NamedTuple):
+@dataclass(slots=True)
+class Constraint:
     """A representation for a constraint on integer amounts via a range.
 
     Attributes
     ----------
-    min_val : :class:`int`, default=0
+    min_val: :class:`int`, default=0
         The lower end of the constraint. Defaults to 0.
-    max_val : :class:`int` | None, optional
+    max_val: :class:`int` | None, optional
         The upper bound of the constraint. Defaults to None.
     """
 
@@ -97,9 +98,9 @@ def get_id_from_url(url: str, *, will_raise: bool = False) -> int | None:
 
     Parameters
     ----------
-    url : :class:`str`
+    url: :class:`str`
         The AO3 url. Could be for a series or a work.
-    will_raise : :class:`bool`, optional
+    will_raise: :class:`bool`, optional
         Whether to raise an exception if an id is not found in the given string. Defaults to False.
 
     Returns

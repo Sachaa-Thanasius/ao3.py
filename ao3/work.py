@@ -8,9 +8,10 @@ from typing import TYPE_CHECKING, Any, TypeAlias
 from lxml import html
 
 from ._selectors import WORK_SELECTORS
-from .abc import BookmarkableMixin, CollectableMixin, KudoableMixin, Object, Page, SubscribableMixin
+from .abc import BookmarkableMixin, CollectableMixin, KudoableMixin, Page, SubscribableMixin
 from .enums import Language
 from .errors import AO3Exception, UnloadedError
+from .object import Object
 from .utils import cached_slot_property, get_id_from_url, int_or_none
 
 
@@ -156,7 +157,7 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_series")
     def series(self) -> tuple[Object, ...]:
-        """:class:`str`: The series this work is a part of, minimized as :class:`ao3.Object`s."""
+        """tuple[:class:`Object`, ...]: The series this work is a part of, minimized as :class:`ao3.Object`s."""
 
         from .series import Series  # Avoid circular import.
 
@@ -315,7 +316,7 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_nchapters")
     def nchapters(self) -> tuple[int | None, int | None]:
-        """tuple[:class:`int | None, :class:`int | None]: A tuple of the work's current chapters and expected chapters.
+        """tuple[:class:`int` | None, :class:`int` | None]: A tuple for the work's current and expected chapters.
 
         The expected chapters element might be None if not specified.
         """
@@ -388,7 +389,7 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @property
     def stats(self) -> tuple[int, int, int, int]:
-        """tuple[:class:`int', :class:`int', :class:`int', :class:`int']: A tuple with the most common work stats.
+        """tuple[:class:`int`, :class:`int`, :class:`int`, :class:`int`]: A tuple with the most common work stats.
 
         This includes the number of comments, kudos, bookmarks, and hits.
         """

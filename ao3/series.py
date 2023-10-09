@@ -6,8 +6,9 @@ from typing import TYPE_CHECKING, Any
 from lxml import html
 
 from ._selectors import SERIES_SELECTORS
-from .abc import BookmarkableMixin, Object, Page, SubscribableMixin
+from .abc import BookmarkableMixin, Page, SubscribableMixin
 from .errors import UnloadedError
+from .object import Object
 from .user import User
 from .utils import cached_slot_property, int_or_none
 
@@ -112,7 +113,7 @@ class Series(Page, BookmarkableMixin, SubscribableMixin):
 
     @cached_slot_property("_cs_creators")
     def creators(self) -> tuple[Object, ...]:
-        """tuple[:class:`Object`, ...]The series's creators, minimized as :class:`ao3.Object`s."""
+        """tuple[:class:`Object`, ...]: The series's creators, minimized as :class:`ao3.Object`s."""
 
         if self.raw_element is None:
             raise UnloadedError
@@ -223,7 +224,7 @@ class Series(Page, BookmarkableMixin, SubscribableMixin):
 
     @property
     def stats(self) -> tuple[int, int, bool, int]:
-        """tuple[:class:`int', :class:`int', :class:`bool', :class:`int']: A tuple with the most common series stats.
+        """tuple[:class:`int`, :class:`int`, :class:`bool`, :class:`int`]: A tuple with the most common series stats.
 
         This includes the number of words, number of works, completion status, and number of bookmarks.
         """
