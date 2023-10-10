@@ -258,7 +258,7 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
         """
 
         return chain(
-            self.rating,
+            [self.rating],
             self.warnings,
             self.categories,
             self.fandoms,

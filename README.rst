@@ -12,7 +12,7 @@ ao3.py
 .. image:: https://readthedocs.org/projects/ao3py/badge/?version=latest
     :target: https://ao3py.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
-    
+
 -----------------------------------------------------------------
 
 An asynchronous scraper of Archive Of Our Own, made in Python.
@@ -34,17 +34,6 @@ Installation
 ------------
 
 **ao3.py currently requires Python 3.10 or higher.**
-
-To install normally, run one of the following commands:
-
-.. code:: sh
-
-    # Windows
-    py -3.10 -m pip install -U ao3.py
-
-    # Linux
-    python3.10 -m pip install -U ao3.py
-
 
 To install the development version, run one of the following commands:
 
@@ -80,13 +69,13 @@ Quick Example
 To Do
 -----
 
-- ☐ Properly implement and test user-based actions
-    - ☐ Logging in
-    - ☐ Giving kudos
-    - ☐ (Un)bookmarking
-    - ☐ (Un)subscribing
-    - ☐ Adding/Deleting comments
-    - ☐ (Un)collecting
+* ☐ Properly implement and test user-based actions
+    * ☐ Logging in
+    * ☐ Giving kudos
+    * ☐ (Un)bookmarking
+    * ☐ (Un)subscribing
+    * ☐ Adding/Deleting comments
+    * ☐ (Un)collecting
 
 
 Motivation

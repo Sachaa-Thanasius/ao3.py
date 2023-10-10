@@ -21,7 +21,7 @@ WORK_SELECTORS = {
     "summary":          CSSSelector("div.summary > blockquote.userstuff"),
     "series":           CSSSelector("dl.work.meta.group dd.series span.position a"),
     "restricted":       CSSSelector('img [title*="Restricted"]'),
-    "rating":           CSSSelector("dl.work.meta.group dd.fandom.tags li"),
+    "rating":           CSSSelector("dl.work.meta.group dd.rating.tags li"),
     "warnings":         CSSSelector("dl.work.meta.group dd.warning.tags li"),
     "categories":       CSSSelector("dl.work.meta.group dd.category.tags li"),
     "fandoms":          CSSSelector("dl.work.meta.group dd.fandom.tags li"),
