@@ -9,8 +9,8 @@ ao3.py
     :target: https://github.com/Sachaa-Thanasius/ao3.py/actions/workflows/coverage_and_lint.yml
     :alt: Linting and Typechecking
 
-.. image:: https://ao3py.readthedocs.io/en/latest/?badge=latest
-    :target: https://readthedocs.org/projects/ao3py/badge/?version=latest
+.. image:: https://readthedocs.org/projects/ao3py/badge/?version=latest
+    :target: https://ao3py.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
 An asynchronous scraper of Archive Of Our Own, made in Python.
@@ -62,6 +62,7 @@ Quick Example
 
 To Do
 -----
+
 - ☐ Properly implement and test user-based actions
     - ☐ Logging in
     - ☐ Giving kudos
