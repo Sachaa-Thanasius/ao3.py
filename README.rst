@@ -1,11 +1,90 @@
 ao3.py
 ======
 
-.. image:: https://github.com/Sachaa-Thanasius/ao3.py/actions/workflows/coverage_and_lint.yaml/badge.svg
-    :target: https://github.com/Sachaa-Thanasius/ao3.py/actions/workflows/coverage_and_lint.yaml
+.. image:: https://img.shields.io/github/license/Sachaa-Thanasius/ao3.py.svg
+    :target: LICENSE
+    :alt: MIT License
+
+.. image:: https://github.com/Sachaa-Thanasius/ao3.py/actions/workflows/coverage_and_lint.yml/badge.svg
+    :target: https://github.com/Sachaa-Thanasius/ao3.py/actions/workflows/coverage_and_lint.yml
     :alt: Linting and Typechecking
+
 .. image:: https://ao3py.readthedocs.io/en/latest/?badge=latest
     :target: https://readthedocs.org/projects/ao3py/badge/?version=latest
     :alt: Documentation Status
 
 An asynchronous scraper of Archive Of Our Own, made in Python.
+
+
+Documentation
+-------------
+
+`Official Documentation <https://ao3py.readthedocs.io/en/latest>`_.
+
+
+Installation
+------------
+
+**ao3.py currently requires Python 3.10 or higher.**
+
+**Windows**
+
+.. code:: sh
+
+    py -3.10 -m pip install -U ao3.py
+
+**Linux**
+
+.. code:: sh
+
+    python3.10 -m pip install -U ao3.py
+
+
+Quick Example
+-------------
+
+.. code-block:: py
+
+    import asyncio
+    import ao3
+
+    async def main():
+        test_url = "https://archiveofourown.org/works/48637876"
+
+        async with ao3.Client() as client:
+            work_id = ao3.utils.get_id_from_url(test_url)
+            work = await client.get_work(work_id)
+            print(work)
+            print(work.stats)
+
+    asyncio.run(main)
+
+
+To Do
+-----
+- ☐ Properly implement and test user-based actions
+    - ☐ Logging in
+    - ☐ Giving kudos
+    - ☐ (Un)bookmarking
+    - ☐ (Un)subscribing
+    - ☐ Adding/Deleting comments
+    - ☐ (Un)collecting
+
+
+Motivation
+----------
+
+Honestly, I just wanted a fully typed Python AO3 scraper that I could use in asynchronous contexts. That's it.
+
+
+Acknowledgements
+----------------
+
+Thank you to:
+
+- other AO3 scrapers like Armindo Flores's `ao3_api <https://github.com/ArmindoFlores/ao3_api>`_,
+- large projects like `discord.py <https://github.com/Rapptz/discord.py/>`_ and `steam.py <https://github.com/Gobot1234/steam.py>`_ for heavily inspiring the overall structure of this repo,
+- and of course, aeroali, for everything.
+
+
+

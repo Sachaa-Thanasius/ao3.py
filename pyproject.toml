@@ -27,12 +27,10 @@ classifiers = [
     "Topic :: Utilities",
     "Typing :: Typed",
 ]
-dependencies = [
-    "aiohttp>=3.8",
-    "cssselect",
-    "lxml",
-    "lxml-stubs@git+https://github.com/Sachaa-Thanasius/lxml-stubs.git", # My custom, slightly more typed version.
-]
+dynamic = ["dependencies"]
+
+[tool.setuptools.dynamic]
+dependencies = { file = ["requirements.txt"] }
 
 [project.optional-dependencies]
 speed = ["aiodns>=1.1", "Brotli", "cchardet"]

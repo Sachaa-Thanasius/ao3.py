@@ -3,7 +3,6 @@ repos:
   rev: v4.4.0
   hooks:
   - id: check-yaml
-  - id: check-toml
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.0.291
   hooks:
@@ -13,7 +12,3 @@ repos:
   rev: 23.9.1
   hooks:
   - id: black
-- repo: https://github.com/RobertCraigie/pyright-python
-  rev: v1.1.330
-  hooks:
-  - id: pyright
