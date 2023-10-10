@@ -1,5 +1,4 @@
 ao3.py
-======
 
 .. image:: https://img.shields.io/github/license/Sachaa-Thanasius/ao3.py.svg
     :target: LICENSE
@@ -13,7 +12,15 @@ ao3.py
     :target: https://ao3py.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
+==================================================================
+
 An asynchronous scraper of Archive Of Our Own, made in Python.
+
+Features
+--------
+
+- Uses Python's ``async``/``await`` syntax
+- Fully type annotated
 
 
 Documentation
@@ -27,17 +34,26 @@ Installation
 
 **ao3.py currently requires Python 3.10 or higher.**
 
-**Windows**
+To install normally, run one of the following commands:
 
 .. code:: sh
 
+    # Windows
     py -3.10 -m pip install -U ao3.py
 
-**Linux**
+    # Linux
+    python3.10 -m pip install -U ao3.py
+
+
+To install the development version, run one of the following commands:
 
 .. code:: sh
 
-    python3.10 -m pip install -U ao3.py
+    # Windows
+    py -3.10 -m pip install -U "ao3.py @ "ao3.py @ git+https://github.com/Sachaa-Thanasius/ao3.py@main"
+
+    # Linux
+    python3.10 -m pip install -U "ao3.py @ "ao3.py @ git+https://github.com/Sachaa-Thanasius/ao3.py@main"
 
 
 Quick Example
