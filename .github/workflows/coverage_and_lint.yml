@@ -1,4 +1,4 @@
-name: Type Coverage and Linting
+name: Type Coverage/Linting
 
 on:
   push:

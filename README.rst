@@ -1,4 +1,5 @@
 ao3.py
+======
 
 .. image:: https://img.shields.io/github/license/Sachaa-Thanasius/ao3.py.svg
     :target: LICENSE
@@ -11,8 +12,8 @@ ao3.py
 .. image:: https://readthedocs.org/projects/ao3py/badge/?version=latest
     :target: https://ao3py.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
-
-==================================================================
+    
+-----------------------------------------------------------------
 
 An asynchronous scraper of Archive Of Our Own, made in Python.
 
