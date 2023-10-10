@@ -1,3 +1,6 @@
+default_language_version:
+    python: python3.10
+
 repos:
 - repo: https://github.com/astral-sh/ruff-pre-commit
   rev: v0.0.291
@@ -8,8 +11,7 @@ repos:
   rev: 23.9.1
   hooks:
   - id: black
-    language_version: python3.10
 - repo: https://github.com/RobertCraigie/pyright-python
-  rev: v1.1.328
+  rev: v1.1.330
   hooks:
   - id: pyright
