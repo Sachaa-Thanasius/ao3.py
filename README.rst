@@ -50,10 +50,10 @@ To install the development version, run one of the following commands:
 .. code:: sh
 
     # Windows
-    py -3.10 -m pip install -U "ao3.py @ "ao3.py @ git+https://github.com/Sachaa-Thanasius/ao3.py@main"
+    py -3.10 -m pip install -U "ao3.py @ git+https://github.com/Sachaa-Thanasius/ao3.py@main"
 
     # Linux
-    python3.10 -m pip install -U "ao3.py @ "ao3.py @ git+https://github.com/Sachaa-Thanasius/ao3.py@main"
+    python3.10 -m pip install -U "ao3.py @ git+https://github.com/Sachaa-Thanasius/ao3.py@main"
 
 
 Quick Example
