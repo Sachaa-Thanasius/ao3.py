@@ -120,8 +120,6 @@ property-decorators = ["ao3.utils.cached_slot_property"] # Similar enough to fun
 
 [tool.pyright]
 include = ["ao3", "tests"]
-venvPath = "."             # Necessary to point Pyright at the custom lxml-stubs.
-venv = ".venv"             # See previous comment.
 
 pythonVersion = "3.10"
 typeCheckingMode = "strict"
