@@ -39,7 +39,7 @@ speed = ["aiodns>=1.1", "Brotli", "cchardet"]
 docs = ["sphinx", "furo", "sphinxcontrib-trio"]
 
 [project.urls]
-Homepage = "https://github.com/Sachaa-Thanasius/ao3.py"
+Homepage = "https://ao3py.readthedocs.io/en/latest/index.html"
 Repository = "https://github.com/Sachaa-Thanasius/ao3.py"
 "Bug Tracker" = "https://github.com/Sachaa-Thanasius/ao3.py/issues"
 
