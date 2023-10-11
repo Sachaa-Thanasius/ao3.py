@@ -3,6 +3,7 @@ from __future__ import annotations
 from collections.abc import AsyncGenerator
 from typing import TYPE_CHECKING, Any, TypeAlias, TypeVar
 
+import aiohttp
 from lxml import html
 
 from .errors import LoginFailure
@@ -35,10 +36,17 @@ __all__ = ("Client",)
 
 
 class Client:
-    """Represents a client that interacts with AO3's frontend."""
+    """Represents a client that interacts with AO3's frontend.
 
-    def __init__(self) -> None:
-        self._http = HTTPClient()
+    Parameters
+    ----------
+    session: :class:`aiohttp.ClientSession` | None, optional
+        The asynchronous HTTP session to make requests with. If not passed in, automatically generated. Closing it is
+        not handled automatically by the class.
+    """
+
+    def __init__(self, session: aiohttp.ClientSession | None = None) -> None:
+        self._http = HTTPClient(_session=session)
 
     async def __aenter__(self) -> Self:
         return self
