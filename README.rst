@@ -3,11 +3,19 @@ ao3.py
 
 .. image:: https://img.shields.io/github/license/Sachaa-Thanasius/ao3.py.svg
     :target: LICENSE
-    :alt: MIT License
+    :alt: License: MIT
 
-.. image:: https://github.com/Sachaa-Thanasius/ao3.py/actions/workflows/coverage_and_lint.yml/badge.svg
-    :target: https://github.com/Sachaa-Thanasius/ao3.py/actions/workflows/coverage_and_lint.yml
-    :alt: Linting and Typechecking
+.. image:: https://microsoft.github.io/pyright/img/pyright_badge.svg
+    :target: https://microsoft.github.io/pyright/
+    :alt: Checked with pyright
+
+.. image:: https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json
+    :target: https://github.com/astral-sh/ruff
+    :alt: Ruff
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+    :alt: Code style: black
 
 .. image:: https://readthedocs.org/projects/ao3py/badge/?version=latest
     :target: https://ao3py.readthedocs.io/en/latest/?badge=latest
