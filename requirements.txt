@@ -1,4 +1,5 @@
 aiohttp>=3.8
+attrs
 cssselect
 lxml
 lxml-stubs @ git+https://github.com/Sachaa-Thanasius/lxml-stubs.git

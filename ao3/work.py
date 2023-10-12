@@ -3,7 +3,7 @@ from __future__ import annotations
 import datetime
 from collections.abc import Iterator
 from itertools import chain
-from typing import TYPE_CHECKING, Any, TypeAlias
+from typing import TYPE_CHECKING, Any
 
 from lxml import html
 
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
     from .http import HTTPClient
 else:
-    Self: TypeAlias = Any
+    Self = Any
 
 __all__ = ("Work",)
 

@@ -1,12 +1,12 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, SupportsInt
+from typing import TYPE_CHECKING, SupportsInt, Union
 
 
 if TYPE_CHECKING:
     from .abc import Page
 
-SupportsIntCast = SupportsInt | str | bytes | bytearray
+SupportsIntCast = Union[SupportsInt, str, bytes, bytearray]
 
 
 __all__ = ("Object",)

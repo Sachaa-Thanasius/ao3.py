@@ -4,9 +4,8 @@ import asyncio
 import logging
 import sys
 from collections.abc import Coroutine, Sequence
-from dataclasses import dataclass
 from importlib.metadata import version as im_version
-from typing import TYPE_CHECKING, Any, Literal, TypeAlias, TypeVar, overload
+from typing import TYPE_CHECKING, Any, Literal, TypeVar, overload
 from urllib.parse import quote as uriquote
 
 import aiohttp
@@ -20,8 +19,8 @@ if TYPE_CHECKING:
 
 
 T = TypeVar("T")
-Coro: TypeAlias = Coroutine[Any, Any, T]
-HTTPVerb: TypeAlias = Literal["GET", "POST", "PUT", "DELETE", "PATCH"]
+Coro = Coroutine[Any, Any, T]
+HTTPVerb = Literal["GET", "POST", "PUT", "DELETE", "PATCH"]
 
 LOGGER = logging.getLogger(__name__)
 
@@ -56,10 +55,15 @@ class Route:
         self.url = url
 
 
-@dataclass(slots=True)
 class AuthState:
-    login_token: str
-    client_user: User
+    __slots__ = (
+        "login_token",
+        "client_user",
+    )
+
+    def __init__(self, login_token: str, client_user: User) -> None:
+        self.login_token = login_token
+        self.client_user = client_user
 
 
 class HTTPClient:

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator
-from typing import TYPE_CHECKING, Any, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import aiohttp
 from lxml import html
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 else:
-    Self: TypeAlias = Any
+    Self = Any
 
 BE = TypeVar("BE", bound=BaseException)
 

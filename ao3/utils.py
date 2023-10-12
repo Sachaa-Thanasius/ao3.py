@@ -2,9 +2,9 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
-from dataclasses import dataclass
 from typing import Generic, TypeVar, overload
 
+import attrs
 from lxml import html
 
 from .errors import InvalidURLError
@@ -62,7 +62,7 @@ def cached_slot_property(name: str) -> Callable[[Callable[[T], T_co]], CachedSlo
     return decorator
 
 
-@dataclass(slots=True)
+@attrs.define
 class Constraint:
     """A representation for a constraint on integer amounts via a range.
 

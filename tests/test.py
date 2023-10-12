@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from time import perf_counter
-from typing import TYPE_CHECKING, Any, TypeAlias, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 import ao3
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 else:
-    Self: TypeAlias = Any
+    Self = Any
 
 BE = TypeVar("BE", bound=BaseException)
 

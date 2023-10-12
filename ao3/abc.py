@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Protocol, TypeAlias, runtime_checkable
+from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
 
 from .errors import (
     AO3_AUTH_ERROR_URL,
@@ -23,7 +23,7 @@ if TYPE_CHECKING:
 
     from .http import HTTPClient
 else:
-    Self: TypeAlias = Any
+    Self = Any
 
 __all__ = (
     "Page",
