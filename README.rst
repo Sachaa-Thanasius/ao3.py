@@ -21,8 +21,6 @@ ao3.py
     :target: https://ao3py.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
 
------------------------------------------------------------------
-
 An asynchronous scraper of Archive Of Our Own, made in Python.
 
 Features
