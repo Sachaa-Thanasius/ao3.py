@@ -5,7 +5,7 @@ ao3.py
     :target: LICENSE
     :alt: License: MIT
 
-.. image:: https://microsoft.github.io/pyright/img/pyright_badge.svg
+.. image:: https://img.shields.io/badge/pyright-checked-informational.svg
     :target: https://microsoft.github.io/pyright/
     :alt: Checked with pyright
 
@@ -20,6 +20,7 @@ ao3.py
 .. image:: https://readthedocs.org/projects/ao3py/badge/?version=latest
     :target: https://ao3py.readthedocs.io/en/latest/?badge=latest
     :alt: Documentation Status
+
 
 An asynchronous scraper of Archive Of Our Own, made in Python.
 
