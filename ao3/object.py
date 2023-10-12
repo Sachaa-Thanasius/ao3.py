@@ -32,7 +32,7 @@ class Object:
         The ID of the object. Defaults to None.
     name: :class:`str` | None, optional
         The name of the object. Defaults to None.
-    type: type[:class:`Page`] | type[:class:`Object`]
+    type: type[:class:`ao3.abc.Page`] | type[:class:`Object`]
         The type of the object, which can be any Page subclasses. Defaults to `Object`.
     """
 

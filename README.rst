@@ -40,7 +40,7 @@ Documentation
 Installation
 ------------
 
-**ao3.py currently requires Python 3.10 or higher.**
+**ao3.py currently requires Python 3.8 or higher.**
 
 To install the development version, run one of the following commands:
 
