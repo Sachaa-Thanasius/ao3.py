@@ -74,6 +74,3 @@ Thank you to:
 - other AO3 scrapers like Armindo Flores's [ao3_api](https://github.com/ArmindoFlores/ao3_api),
 - large projects like [discord.py](https://github.com/Rapptz/discord.py/) and [steam.py](https://github.com/Gobot1234/steam.py) for heavily inspiring the overall structure of this repo,
 - and of course, aeroali, for everything.
-
-
-
