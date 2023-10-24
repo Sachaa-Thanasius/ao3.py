@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "ao3.py"
 description = "An asynchronous scraper for Archive Of Our Own, made in Python."
 requires-python = ">=3.8"
-version = "0.1.0"
+version = "0.1.1"
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["python", "python-3", "ao3", "scraper"]
@@ -35,6 +35,9 @@ dynamic = ["dependencies"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
+
+[tool.setuptools.package-data]
+"ao3" = ["py.typed"]
 
 [project.optional-dependencies]
 speed = ["aiodns>=1.1", "Brotli", "cchardet"]
@@ -112,6 +115,7 @@ unfixable = [
     "F403",    # Undefined import with star
     "PLC0414", # Import alias does not rename original package
 ]
+"tests/*" = ["INP001"] # Leave the tests alone.
 
 [tool.ruff.isort]
 lines-after-imports = 2
