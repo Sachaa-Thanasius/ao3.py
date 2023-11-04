@@ -16,11 +16,13 @@ from .utils import extract_login_auth_token
 
 if TYPE_CHECKING:
     from .user import User
+else:
+    User = object
 
 
 T = TypeVar("T")
 Coro = Coroutine[Any, Any, T]
-HTTPVerb = Literal["GET", "POST", "PUT", "DELETE", "PATCH"]
+HTTPMethod = Literal["GET", "POST", "PUT", "DELETE", "PATCH"]
 
 LOGGER = logging.getLogger(__name__)
 
@@ -38,7 +40,7 @@ class Route:
         The HTTP request to make, e.g. ``"GET"``.
     path: :class:`str`
         The prepended path to the API endpoint you want to hit, e.g. ``"/user/{user_id}/profile"``.
-    **parameters: Any
+    **parameters: object
         Special keyword arguments that will be substituted into the corresponding spot in the `path` where the key is
         present, e.g. if your parameters are ``user_id=1234`` and your path is ``"user/{user_id}/profile"``, the path
         will become ``"user/1234/profile"``.
@@ -46,7 +48,7 @@ class Route:
 
     __slots__ = ("verb", "path", "url")
 
-    def __init__(self, verb: HTTPVerb, path: str, **parameters: Any) -> None:
+    def __init__(self, verb: HTTPMethod, path: str, **parameters: object) -> None:
         self.verb = verb
         self.path = path
         url = AO3_BASE_URL + path
@@ -94,7 +96,7 @@ class HTTPClient:
         ...
 
     @overload
-    async def _request(self, route: Route, return_type: Literal["json"] = ..., **kwargs: Any) -> dict[str, Any]:
+    async def _request(self, route: Route, return_type: Literal["json"] = ..., **kwargs: Any) -> dict[str, object]:
         ...
 
     @overload
@@ -115,7 +117,7 @@ class HTTPClient:
         route: Route,
         return_type: Literal["text", "json", "raw", "both"] = "text",
         **kwargs: Any,
-    ) -> str | dict[str, Any] | aiohttp.ClientResponse | tuple[aiohttp.ClientResponse, str]:
+    ) -> str | dict[str, object] | aiohttp.ClientResponse | tuple[aiohttp.ClientResponse, str]:
         self._start_session()
         assert self._session
 
@@ -261,7 +263,7 @@ class HTTPClient:
         marked_later: bool = False,
     ) -> Coro[str]:
         route = Route("GET", "/users/{username}/readings", username=username)
-        payload: dict[str, Any] = {"page": page}
+        payload: dict[str, object] = {"page": page}
         if marked_later:
             payload["show"] = "to-read"
         return self._request(route, params=payload)
@@ -299,7 +301,7 @@ class HTTPClient:
         comment_page: int = 1,
     ) -> Coro[str]:
         route = Route("GET", "/chapters/{id}", id=chapter_id)
-        payload: dict[str, Any] = {"view_adult": "true"}
+        payload: dict[str, object] = {"view_adult": "true"}
         if show_comments:
             payload.update({"show_comments": "true", "comment_page": comment_page})
         return self._request(route, params=payload)
@@ -332,7 +334,7 @@ class HTTPClient:
         sort_direction: Literal["asc", "desc"] = "desc",
     ) -> Coro[str]:
         route = Route("GET", "/works/search")
-        payload: dict[str, Any] = {
+        payload: dict[str, object] = {
             "page": page,
             "work_search[query]": any_field,
             "work_search[title]": title,
@@ -489,7 +491,7 @@ class HTTPClient:
         username: str,
         subable_id: int,
         subable_type: str,
-    ) -> Coro[dict[str, Any]]:
+    ) -> Coro[dict[str, object]]:
         route = Route("POST", "/users/{username}/subscriptions", username=username)
         data = {
             "authenticity_token": authenticity_token,
@@ -539,7 +541,7 @@ class HTTPClient:
             "X-Requested-With": "XMLHttpRequest",
         }
 
-        data: dict[str, Any] = {}
+        data: dict[str, object] = {}
 
         temp_key = "work_id" if full_work else "chapter_id"
         data[temp_key] = ao3_object_id

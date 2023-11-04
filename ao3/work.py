@@ -1,9 +1,9 @@
 from __future__ import annotations
 
 import datetime
-from collections.abc import Iterator
+from collections.abc import Iterator, Mapping
 from itertools import chain
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING
 
 from lxml import html
 
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
     from .http import HTTPClient
 else:
-    Self = Any
+    HTTPClient = Self = object
 
 __all__ = ("Work",)
 
@@ -71,7 +71,7 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
         self,
         http: HTTPClient,
         *,
-        payload: dict[str, Any] | None = None,
+        payload: Mapping[str, object] | None = None,
         element: html.HtmlElement | None = None,
     ) -> None:
         self._http = http
@@ -132,7 +132,7 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_authors")
     def authors(self) -> tuple[Object, ...]:
-        """tuple[:class:`Object`, ...]: The work's authors, minimized as :class:`ao3.Object`s."""
+        """tuple[:class:`Object`, ...]: The work's authors, minimized as :class:`ao3.Object` instances."""
 
         from .user import User  # Avoid circular import.
 
@@ -157,7 +157,9 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
 
     @cached_slot_property("_cs_series")
     def series(self) -> tuple[Object, ...]:
-        """tuple[:class:`Object`, ...]: The series this work is a part of, minimized as :class:`ao3.Object`s."""
+        """tuple[:class:`Object`, ...]: The series this work is a part of, minimized as :class:`ao3.Object`
+        instances.
+        """
 
         from .series import Series  # Avoid circular import.
 
@@ -461,8 +463,10 @@ class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, Collectabl
         else:
             chapters = (None, None)
 
-        comments = int_or_none(str(el[0].text)) if (el := work_element.cssselect(".stats dd.comments")) else None
-        kudos = int_or_none(str(el[0].text)) if (el := work_element.cssselect(".stats dd.kudos")) else None
+        comments = (
+            int_or_none(str(el[0].text_content())) if (el := work_element.cssselect(".stats dd.comments")) else None
+        )
+        kudos = int_or_none(str(el[0].text_content())) if (el := work_element.cssselect(".stats dd.kudos")) else None
         bookmarks = (
             int_or_none(str(el[0].text_content())) if (el := work_element.cssselect(".stats dd.bookmarks")) else None
         )

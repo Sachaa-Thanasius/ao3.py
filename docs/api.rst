@@ -121,7 +121,6 @@ Utilities
 ---------
 
 .. autoclass:: ao3.utils.Constraint
-    :members:
 
 .. autofunction:: ao3.utils.get_id_from_url
 

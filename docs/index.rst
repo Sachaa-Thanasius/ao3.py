@@ -1,6 +1,6 @@
 Welcome to ao3.py's documentation!
 ==================================
-An unofficial, fully asynchronous scraper for `Archive of Our Own <https://archiveofourown.org>`_.
+An unofficial, asynchronous scraper for `Archive of Our Own <https://archiveofourown.org>`_.
 
 
 .. toctree::

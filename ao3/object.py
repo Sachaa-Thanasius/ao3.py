@@ -5,6 +5,8 @@ from typing import TYPE_CHECKING, SupportsInt, Union
 
 if TYPE_CHECKING:
     from .abc import Page
+else:
+    Page = object
 
 SupportsIntCast = Union[SupportsInt, str, bytes, bytearray]
 
@@ -69,6 +71,6 @@ class Object:
         return hash(tuple(attr for attr in (self.id, self.name, self.type) if attr is not None))
 
     def __repr__(self) -> str:
-        attrs = ("id", "name", "type")
-        resolved = (f"{attr}={val}" for attr in attrs if (val := getattr(self, attr)) is not None)
+        attrs_ = ("id", "name", "type")
+        resolved = (f"{attr}={val}" for attr in attrs_ if (val := getattr(self, attr)) is not None)
         return f"{type(self).__name__}({' '.join(resolved)})"

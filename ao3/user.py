@@ -2,7 +2,8 @@ from __future__ import annotations
 
 import datetime
 import re
-from typing import TYPE_CHECKING, Any
+from collections.abc import Mapping
+from typing import TYPE_CHECKING
 
 from lxml import html
 
@@ -14,6 +15,8 @@ from .utils import cached_slot_property
 
 if TYPE_CHECKING:
     from .http import HTTPClient
+else:
+    HTTPClient = object
 
 
 __all__ = ("User",)
@@ -57,7 +60,7 @@ class User(Page, SubscribableMixin):
         self,
         http: HTTPClient,
         *,
-        payload: dict[str, Any] | None = None,
+        payload: Mapping[str, object] | None = None,
         element: html.HtmlElement | None = None,
     ) -> None:
         self._http = http

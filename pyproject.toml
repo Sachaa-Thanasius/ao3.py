@@ -6,7 +6,7 @@ build-backend = "setuptools.build_meta"
 name = "ao3.py"
 description = "An asynchronous scraper for Archive Of Our Own, made in Python."
 requires-python = ">=3.8"
-version = "0.1.1"
+version = "0.1.2"
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["python", "python-3", "ao3", "scraper"]
@@ -32,6 +32,9 @@ classifiers = [
     "Typing :: Typed",
 ]
 dynamic = ["dependencies"]
+
+[tool.setuptools]
+packages = ["ao3"]
 
 [tool.setuptools.dynamic]
 dependencies = { file = ["requirements.txt"] }
@@ -126,9 +129,14 @@ property-decorators = ["ao3.utils.cached_slot_property"] # Similar enough to fun
 
 [tool.pyright]
 include = ["ao3", "tests"]
+venvPath = "."
+venv = ".venv"
 
 pythonVersion = "3.8"
 typeCheckingMode = "strict"
 reportPrivateUsage = "none"
 reportMissingTypeStubs = "warning"
+reportCallInDefaultInitializer = "warning"
+# reportImportCycles = "warning"
+reportPropertyTypeMismatch = "warning"
 reportUnnecessaryTypeIgnoreComment = "warning"

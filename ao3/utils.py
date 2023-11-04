@@ -2,9 +2,8 @@ from __future__ import annotations
 
 import re
 from collections.abc import Callable
-from typing import Generic, TypeVar, overload
+from typing import Generic, NamedTuple, TypeVar, overload
 
-import attrs
 from lxml import html
 
 from .errors import InvalidURLError
@@ -27,7 +26,8 @@ AO3_LOGO_URL = "https://archiveofourown.org/images/ao3_logos/logo.png"
 class CachedSlotProperty(Generic[T, T_co]):
     """An implementation of a cached property for slotted classes.
 
-    Source: https://github.com/Rapptz/discord.py/blob/master/discord/utils.py#L208
+    Copied from discord.py: https://github.com/Rapptz/discord.py/blob/master/discord/utils.py#L208.
+    Credit goes to Rapptz and contributors.
     """
 
     def __init__(self, name: str, function: Callable[[T], T_co]) -> None:
@@ -36,14 +36,14 @@ class CachedSlotProperty(Generic[T, T_co]):
         self.__doc__ = function.__doc__
 
     @overload
-    def __get__(self, instance: T, owner: type[T]) -> T_co:
+    def __get__(self, instance: T, owner: type[T] | None = ...) -> T_co:
         ...
 
     @overload
-    def __get__(self, instance: None, owner: type[T]) -> CachedSlotProperty[T, T_co]:
+    def __get__(self, instance: None, owner: type[T] | None = ...) -> CachedSlotProperty[T, T_co]:
         ...
 
-    def __get__(self, instance: T | None, owner: type[T]) -> T_co | CachedSlotProperty[T, T_co]:
+    def __get__(self, instance: T | None, owner: type[T] | None = None) -> T_co | CachedSlotProperty[T, T_co]:
         if instance is None:
             return self
 
@@ -62,8 +62,7 @@ def cached_slot_property(name: str) -> Callable[[Callable[[T], T_co]], CachedSlo
     return decorator
 
 
-@attrs.define
-class Constraint:
+class Constraint(NamedTuple):
     """A representation for a constraint on integer amounts via a range.
 
     Attributes

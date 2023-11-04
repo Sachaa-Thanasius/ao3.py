@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import AsyncGenerator
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 import aiohttp
 from lxml import html
@@ -28,7 +28,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 else:
-    Self = Any
+    TracebackType = Self = object
 
 BE = TypeVar("BE", bound=BaseException)
 
@@ -45,13 +45,13 @@ class Client:
         not handled automatically by the class.
     """
 
-    def __init__(self, session: aiohttp.ClientSession | None = None) -> None:
+    def __init__(self, *, session: aiohttp.ClientSession | None = None) -> None:
         self._http = HTTPClient(_session=session)
 
     async def __aenter__(self) -> Self:
         return self
 
-    async def __aexit__(self, ext_type: type[BE] | None, exc_val: BE | None, exc_tb: TracebackType | None) -> None:
+    async def __aexit__(self, exc_type: type[BE] | None, exc_val: BE | None, exc_tb: TracebackType | None) -> None:
         await self.close()
 
     @property

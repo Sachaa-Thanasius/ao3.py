@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from time import perf_counter
-from typing import TYPE_CHECKING, Any, TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 import ao3
 
@@ -13,7 +13,7 @@ if TYPE_CHECKING:
 
     from typing_extensions import Self
 else:
-    Self = Any
+    TracebackType = Self = object
 
 BE = TypeVar("BE", bound=BaseException)
 
@@ -38,7 +38,9 @@ class catchtime:
         self.readout = f"Time: {self.time:.3f} seconds"
 
 
-async def get_work_test(client: ao3.Client, url: str) -> None:
+async def get_work_test(client: ao3.Client) -> None:
+    url = "https://archiveofourown.org/works/48637876"
+
     log.info("----------WORK OBJECT TESTING----------")
 
     work_id = ao3.utils.get_id_from_url(url)
@@ -47,10 +49,6 @@ async def get_work_test(client: ao3.Client, url: str) -> None:
     with catchtime() as work_time:
         work = await client.get_work(work_id)
 
-    try:
-        log.info("Work instance dict: %s", work.__dict__)
-    except AttributeError:
-        log.info("Work instance has no dict")
     log.info("load time: %s", work_time.time)
     log.info("repr: %r", work)
     log.info("url: %s", work.url)
@@ -75,7 +73,9 @@ async def get_work_test(client: ao3.Client, url: str) -> None:
     log.info("--------------------------------------------------")
 
 
-async def get_series_test(client: ao3.Client, url: str) -> None:
+async def get_series_test(client: ao3.Client) -> None:
+    url = "https://archiveofourown.org/series/1664050"
+
     log.info("----------SERIES OBJECT TESTING----------")
 
     series_id = ao3.utils.get_id_from_url(url)
@@ -84,10 +84,6 @@ async def get_series_test(client: ao3.Client, url: str) -> None:
     with catchtime() as series_time:
         series = await client.get_series(series_id)
 
-    try:
-        log.info("Series instance dict: %s", series.__dict__)
-    except AttributeError:
-        log.info("Series instance has no dict")
     log.info("load time: %s", series_time.time)
     log.info("repr: %r", series)
     log.info("url: %s", series.url)
@@ -105,6 +101,10 @@ async def get_series_test(client: ao3.Client, url: str) -> None:
     with catchtime() as series_works_time:
         works = list(series.works_list)
 
+    for work in works:
+        log.info("Work Stats: %s", work.stats)
+        log.info("Work Chapters: %s", work.nchapters)
+
     log.info("works:\n%s\n%s", series_works_time.time, works)
 
     with catchtime() as series_works_time:
@@ -115,7 +115,9 @@ async def get_series_test(client: ao3.Client, url: str) -> None:
     log.info("--------------------------------------------------")
 
 
-async def get_user_test(client: ao3.Client, username: str) -> None:
+async def get_user_test(client: ao3.Client) -> None:
+    username = "Quordle"
+
     log.info("----------USER OBJECT TESTING----------")
 
     with catchtime() as user_time:
@@ -163,19 +165,15 @@ async def get_search_test(client: ao3.Client) -> None:
     log.info("--------------------------------------------------")
 
 
-async def main() -> None:
-    test_work_url = "https://archiveofourown.org/works/48637876"
-    test_series_url = "https://archiveofourown.org/series/1902145"
-    test_username = "Quordle"
-
+async def run_tests() -> None:
     async with ao3.Client() as client:
-        await get_work_test(client, test_work_url)
-        await get_series_test(client, test_series_url)
-        await get_user_test(client, test_username)
+        await get_work_test(client)
+        await get_series_test(client)
+        await get_user_test(client)
         await get_search_test(client)
 
     await asyncio.sleep(0.1)
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(run_tests())

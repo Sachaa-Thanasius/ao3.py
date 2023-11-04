@@ -1,11 +1,11 @@
 from __future__ import annotations
 
+import dataclasses
 import re
 from abc import abstractmethod
-from collections.abc import Sequence
+from collections.abc import Mapping, Sequence
 from typing import TYPE_CHECKING, Any, Generic, Literal, Tuple, TypeVar
 
-import attrs
 from lxml import html
 
 from ._selectors import SEARCH_SELECTOR
@@ -19,6 +19,8 @@ from .utils import Constraint, cached_slot_property
 if TYPE_CHECKING:
     from .http import HTTPClient
     from .work import Work
+else:
+    HTTPClient = Work = object
 
 R = TypeVar("R")
 SP = TypeVar("SP", bound="SearchOptions")
@@ -38,7 +40,7 @@ __all__ = (
 TAG_SECTIONS = re.compile(r"(?P<type>.*): (?P<name>.*)\u200E\((?P<count>\d+)\)")
 
 
-@attrs.define
+@dataclasses.dataclass
 class TagInfo:
     """Basic information about a tag.
 
@@ -60,7 +62,7 @@ class TagInfo:
     canonical: bool = False
 
 
-@attrs.define
+@dataclasses.dataclass
 class SearchOptions:
     """The base dataclass for AO3 search options.
 
@@ -81,10 +83,10 @@ class SearchOptions:
             A mapping of the search options with potentially slight modifications.
         """
 
-        return attrs.asdict(self)
+        return dataclasses.asdict(self)
 
 
-@attrs.define
+@dataclasses.dataclass
 class WorkSearchOptions(SearchOptions):
     """A collection of options to use for searching works on AO3.
 
@@ -155,18 +157,18 @@ class WorkSearchOptions(SearchOptions):
     single_chapter: bool = False
     word_count: Constraint | None = None
     language_id: Language | None = None
-    fandom_names: Sequence[str] = attrs.field(factory=list)
+    fandom_names: Sequence[str] = dataclasses.field(default_factory=list)
     rating_ids: RatingId | None = None
-    archive_warning_ids: Sequence[ArchiveWarningId] = attrs.field(factory=list)
-    category_ids: Sequence[CategoryId] = attrs.field(factory=list)
-    character_names: Sequence[str] = attrs.field(factory=list)
-    relationship_names: Sequence[str] = attrs.field(factory=list)
-    freeform_names: Sequence[str] = attrs.field(factory=list)
+    archive_warning_ids: Sequence[ArchiveWarningId] = dataclasses.field(default_factory=list)
+    category_ids: Sequence[CategoryId] = dataclasses.field(default_factory=list)
+    character_names: Sequence[str] = dataclasses.field(default_factory=list)
+    relationship_names: Sequence[str] = dataclasses.field(default_factory=list)
+    freeform_names: Sequence[str] = dataclasses.field(default_factory=list)
     hits: Constraint | None = None
     kudos_count: Constraint | None = None
     comments_count: Constraint | None = None
     bookmarks_count: Constraint | None = None
-    excluded_tag_names: Sequence[str] = attrs.field(factory=list)
+    excluded_tag_names: Sequence[str] = dataclasses.field(default_factory=list)
     sort_column: str = "_score"
     sort_direction: Literal["asc", "desc"] = "desc"
 
@@ -201,7 +203,7 @@ class WorkSearchOptions(SearchOptions):
         return result
 
 
-@attrs.define
+@dataclasses.dataclass
 class PeopleSearchOptions(SearchOptions):
     """A collection of options to use for searching people on AO3.
 
@@ -216,8 +218,8 @@ class PeopleSearchOptions(SearchOptions):
     """
 
     any_field: str = ""
-    names: Sequence[str] = attrs.field(factory=list)
-    fandoms: Sequence[str] = attrs.field(factory=list)
+    names: Sequence[str] = dataclasses.field(default_factory=list)
+    fandoms: Sequence[str] = dataclasses.field(default_factory=list)
 
     def to_dict(self) -> dict[str, Any]:
         result = super().to_dict()
@@ -225,7 +227,7 @@ class PeopleSearchOptions(SearchOptions):
         return result
 
 
-@attrs.define
+@dataclasses.dataclass
 class BookmarkSearchOptions(SearchOptions):
     """A collection of options to use for searching bookmarks on AO3.
 
@@ -261,12 +263,12 @@ class BookmarkSearchOptions(SearchOptions):
     """
 
     any_field: str = ""
-    work_tags: Sequence[str] = attrs.field(factory=list)
+    work_tags: Sequence[str] = dataclasses.field(default_factory=list)
     type: Literal["Work", "Series", "External Work"] | None = None
     language_id: Language | None = None
     work_updated: str = ""
     any_bookmark_field: str = ""
-    bookmark_tags: Sequence[str] = attrs.field(factory=list)
+    bookmark_tags: Sequence[str] = dataclasses.field(default_factory=list)
     bookmarker: str = ""
     notes: str = ""
     recommended: bool = False
@@ -284,7 +286,7 @@ class BookmarkSearchOptions(SearchOptions):
         return result
 
 
-@attrs.define
+@dataclasses.dataclass
 class TagSearchOptions(SearchOptions):
     """A collection of options to use for searching people on AO3.
 
@@ -306,7 +308,7 @@ class TagSearchOptions(SearchOptions):
     """
 
     name: str = ""
-    fandoms: Sequence[str] = attrs.field(factory=list)
+    fandoms: Sequence[str] = dataclasses.field(default_factory=list)
     type: Literal["Fandom", "Character", "Relationship", "Freeform"] | None = None
     wranging_status: bool | None = None
     sort_column: Literal["name", "created_at"] = "name"
@@ -338,7 +340,7 @@ class Search(Page, Generic[SP, R]):
         self,
         http: HTTPClient,
         *,
-        payload: dict[str, Any] | None = None,
+        payload: Mapping[str, object] | None = None,
         element: html.HtmlElement | None = None,
     ) -> None:
         self._id = 0
@@ -357,11 +359,11 @@ class Search(Page, Generic[SP, R]):
         return hash(self.search_options)
 
     def __repr__(self) -> str:
-        fields = ((field.name, field.default) for field in attrs.fields(type(self.search_options)))
+        fields = ((field.name, field.default) for field in dataclasses.fields(type(self.search_options)))
         resolved = (
             f"{name}={val!r}"
             for name, default in fields
-            if (val := getattr(self.search_options, name)) is not None and (val != default)
+            if (val := getattr(self.search_options, name)) and (val != default)
         )
         return f"{type(self).__name__}({' '.join(resolved)})"
 

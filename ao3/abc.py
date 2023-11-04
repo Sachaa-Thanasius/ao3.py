@@ -1,7 +1,9 @@
 from __future__ import annotations
 
 from abc import abstractmethod
-from typing import TYPE_CHECKING, Any, Protocol, runtime_checkable
+from typing import TYPE_CHECKING, Protocol, TypeVar, Union, runtime_checkable
+
+from lxml import html
 
 from .errors import (
     AO3_AUTH_ERROR_URL,
@@ -18,12 +20,17 @@ from .utils import CachedSlotProperty, cached_slot_property, extract_csrf_token,
 
 
 if TYPE_CHECKING:
-    from lxml import html
     from typing_extensions import Self
 
     from .http import HTTPClient
 else:
-    Self = Any
+    HTTPClient = Self = object
+
+
+T1 = TypeVar("T1")
+T2 = TypeVar("T2")
+any_property = Union[property, CachedSlotProperty[T1, T2]]
+
 
 __all__ = (
     "Page",
@@ -47,7 +54,7 @@ class Page(Protocol):
 
     __slots__ = ()
 
-    id: property | CachedSlotProperty[Self, int]
+    id: any_property[Self, int]
     _http: HTTPClient
     _element: html.HtmlElement | None
     _authenticity_token: str | None
@@ -87,7 +94,7 @@ class KudoableMixin:
 
     __slots__ = ()
 
-    id: property | CachedSlotProperty[Self, int]
+    id: any_property[Self, int]
     _http: HTTPClient
     authenticity_token: CachedSlotProperty[Self, str | None]
 
@@ -134,7 +141,7 @@ class BookmarkableMixin:
 
     __slots__ = ()
 
-    id: property | CachedSlotProperty[Self, int]
+    id: any_property[Self, int]
     _http: HTTPClient
     authenticity_token: CachedSlotProperty[Self, str | None]
     raw_element: property | html.HtmlElement
@@ -254,7 +261,7 @@ class SubscribableMixin:
 
     __slots__ = ()
 
-    id: property | CachedSlotProperty[Self, int]
+    id: any_property[Self, int]
     _http: HTTPClient
     authenticity_token: CachedSlotProperty[Self, str | None]
     sub_id: CachedSlotProperty[Self, int | None]
@@ -345,7 +352,7 @@ class CollectableMixin:
 
     __slots__ = ()
 
-    id: property | CachedSlotProperty[Self, int]
+    id: any_property[Self, int]
     _http: HTTPClient
     authenticity_token: CachedSlotProperty[Self, str | None]
     url: property | str

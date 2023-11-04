@@ -1,7 +1,8 @@
 from __future__ import annotations
 
 import datetime
-from typing import TYPE_CHECKING, Any
+from collections.abc import Mapping
+from typing import TYPE_CHECKING
 
 from lxml import html
 
@@ -16,6 +17,8 @@ from .utils import cached_slot_property, int_or_none
 if TYPE_CHECKING:
     from .http import HTTPClient
     from .work import Work
+else:
+    HTTPClient = Work = object
 
 __all__ = ("Series",)
 
@@ -54,7 +57,7 @@ class Series(Page, BookmarkableMixin, SubscribableMixin):
         self,
         http: HTTPClient,
         *,
-        payload: dict[str, Any] | None = None,
+        payload: Mapping[str, object] | None = None,
         element: html.HtmlElement | None = None,
     ) -> None:
         self._http = http
@@ -113,7 +116,7 @@ class Series(Page, BookmarkableMixin, SubscribableMixin):
 
     @cached_slot_property("_cs_creators")
     def creators(self) -> tuple[Object, ...]:
-        """tuple[:class:`Object`, ...]: The series's creators, minimized as :class:`ao3.Object`s."""
+        """tuple[:class:`Object`, ...]: The series's creators, minimized as :class:`ao3.Object` instances."""
 
         if self.raw_element is None:
             raise UnloadedError
