@@ -333,11 +333,9 @@ class SubscribableMixin:
 
 class CommentableMixin:
     # Includes works (?)
-    async def comment(self) -> None:
-        ...
+    async def comment(self) -> None: ...
 
-    async def delete_comment(self) -> None:
-        ...
+    async def delete_comment(self) -> None: ...
 
 
 class CollectableMixin:
