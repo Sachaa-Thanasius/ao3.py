@@ -92,16 +92,15 @@ class HTTPClient:
             await self._session.close()
 
     @overload
-    async def _request(self, route: Route, return_type: Literal["text"] = ..., **kwargs: Any) -> str:
-        ...
+    async def _request(self, route: Route, return_type: Literal["text"] = ..., **kwargs: Any) -> str: ...
 
     @overload
-    async def _request(self, route: Route, return_type: Literal["json"] = ..., **kwargs: Any) -> dict[str, object]:
-        ...
+    async def _request(self, route: Route, return_type: Literal["json"] = ..., **kwargs: Any) -> dict[str, object]: ...
 
     @overload
-    async def _request(self, route: Route, return_type: Literal["raw"] = ..., **kwargs: Any) -> aiohttp.ClientResponse:
-        ...
+    async def _request(
+        self, route: Route, return_type: Literal["raw"] = ..., **kwargs: Any
+    ) -> aiohttp.ClientResponse: ...
 
     @overload
     async def _request(
@@ -109,8 +108,7 @@ class HTTPClient:
         route: Route,
         return_type: Literal["both"] = ...,
         **kwargs: Any,
-    ) -> tuple[aiohttp.ClientResponse, str]:
-        ...
+    ) -> tuple[aiohttp.ClientResponse, str]: ...
 
     async def _request(
         self,

@@ -36,12 +36,10 @@ class CachedSlotProperty(Generic[T, T_co]):
         self.__doc__ = function.__doc__
 
     @overload
-    def __get__(self, instance: T, owner: type[T] | None = ...) -> T_co:
-        ...
+    def __get__(self, instance: T, owner: type[T] | None = ...) -> T_co: ...
 
     @overload
-    def __get__(self, instance: None, owner: type[T] | None = ...) -> CachedSlotProperty[T, T_co]:
-        ...
+    def __get__(self, instance: None, owner: type[T] | None = ...) -> CachedSlotProperty[T, T_co]: ...
 
     def __get__(self, instance: T | None, owner: type[T] | None = None) -> T_co | CachedSlotProperty[T, T_co]:
         if instance is None:
