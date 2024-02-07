@@ -99,7 +99,10 @@ class HTTPClient:
 
     @overload
     async def _request(
-        self, route: Route, return_type: Literal["raw"] = ..., **kwargs: Any
+        self,
+        route: Route,
+        return_type: Literal["raw"] = ...,
+        **kwargs: Any,
     ) -> aiohttp.ClientResponse: ...
 
     @overload
