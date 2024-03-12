@@ -23,7 +23,7 @@ else:
 __all__ = ("Series",)
 
 
-class Series(Page, BookmarkableMixin, SubscribableMixin):
+class Series(Page, BookmarkableMixin, SubscribableMixin):  # type: ignore # Overriding "raw_element"
     """A series on AO3.
 
     This implements the following:

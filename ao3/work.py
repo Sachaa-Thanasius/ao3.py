@@ -8,7 +8,13 @@ from typing import TYPE_CHECKING
 from lxml import html
 
 from ._selectors import WORK_SELECTORS
-from .abc import BookmarkableMixin, CollectableMixin, KudoableMixin, Page, SubscribableMixin
+from .abc import (
+    BookmarkableMixin,
+    CollectableMixin,
+    KudoableMixin,
+    Page,
+    SubscribableMixin,
+)
 from .enums import Language
 from .errors import AO3Exception, UnloadedError
 from .object import Object
@@ -25,7 +31,7 @@ else:
 __all__ = ("Work",)
 
 
-class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, CollectableMixin):
+class Work(Page, KudoableMixin, BookmarkableMixin, SubscribableMixin, CollectableMixin):  # type: ignore # Overriding "raw_element"
     """A work on AO3.
 
     This implements the following:

@@ -52,7 +52,7 @@ class HTTPException(AO3Exception):
         self.status = response.status
         self.text = message or ""
 
-        new_message = f"{response.status} {response.reason or ''}"  # type: ignore[reportUnknownMemberType]
+        new_message = f"{response.status} {response.reason or ''}"
         if self.text:
             new_message += f": {self.text}"
 

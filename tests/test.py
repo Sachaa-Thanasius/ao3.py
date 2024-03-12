@@ -3,7 +3,7 @@ from __future__ import annotations
 import asyncio
 import logging
 from time import perf_counter
-from typing import TYPE_CHECKING, TypeVar
+from typing import TYPE_CHECKING
 
 import ao3
 
@@ -14,8 +14,6 @@ if TYPE_CHECKING:
     from typing_extensions import Self
 else:
     TracebackType = Self = object
-
-BE = TypeVar("BE", bound=BaseException)
 
 logging.basicConfig(level=logging.INFO)
 log = logging.getLogger(__name__)
@@ -33,7 +31,12 @@ class catchtime:
         self.time = perf_counter()
         return self
 
-    def __exit__(self, exc_type: type[BE] | None, exc_value: BE | None, traceback: TracebackType | None) -> None:
+    def __exit__(
+        self,
+        exc_type: type[BaseException] | None,
+        exc_value: BaseException | None,
+        traceback: TracebackType | None,
+    ) -> None:
         self.time = perf_counter() - self.time
         self.readout = f"Time: {self.time:.3f} seconds"
 
@@ -149,11 +152,19 @@ async def get_search_test(client: ao3.Client) -> None:
 
     log.info("Select: %r", search)
     log.info("load time: %s", search_time.time)
-    log.info("1st page (%s):\n%s\n", len(search.results), "\n".join(f"{result!r}" for result in search.results))
+    log.info(
+        "1st page (%s):\n%s\n",
+        len(search.results),
+        "\n".join(f"{result!r}" for result in search.results),
+    )
 
     search_params.page = 2
     search = await client.search_works(search_params)
-    log.info("2nd page (%s):\n%s\n", len(search.results), "\n".join(f"{result!r}" for result in search.results))
+    log.info(
+        "2nd page (%s):\n%s\n",
+        len(search.results),
+        "\n".join(f"{result!r}" for result in search.results),
+    )
 
     # Test work search generator
     async for page_search in client.work_search_pages(search_params, stop=5):

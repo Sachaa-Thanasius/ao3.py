@@ -10,7 +10,9 @@ version = "0.1.2"
 readme = "README.md"
 license = { file = "LICENSE" }
 keywords = ["python", "python-3", "ao3", "scraper"]
-authors = [{ name = "Sachaa-Thanasius", email = "111999343+Sachaa-Thanasius@users.noreply.github.com" }]
+authors = [
+    { name = "Sachaa-Thanasius", email = "111999343+Sachaa-Thanasius@users.noreply.github.com" },
+]
 classifiers = [
     "Development Status :: 1 - Planning",
     "Framework :: aiohttp",
@@ -49,15 +51,14 @@ docs = ["sphinx", "furo", "sphinxcontrib-trio"]
 [project.urls]
 Homepage = "https://ao3py.readthedocs.io/en/latest/index.html"
 Repository = "https://github.com/Sachaa-Thanasius/ao3.py"
-"Bug Tracker" = "https://github.com/Sachaa-Thanasius/ao3.py/issues"
+"Issue Tracker" = "https://github.com/Sachaa-Thanasius/ao3.py/issues"
 
-[tool.black]
-line-length = 120
-target-version = ["py38", "py39", "py310", "py311"]
 
 [tool.ruff]
 line-length = 120
 target-version = "py38"
+
+[tool.ruff.lint]
 select = [
     "F",
     "E",
@@ -78,54 +79,67 @@ select = [
     "INP",
     "PIE",
     "T20",
-    "Q003",
+    "PYI",
     "RSE",
     "RET",
     "SIM",
     "TID",
     "PTH",
     "ERA",
-    "PLC",
-    "PLE",
-    "PLR",
-    "PLW",
+    "PD",
+    "PL",
     "TRY",
+    "NPY",
     "RUF",
 ]
 ignore = [
-    "G002",    # Erroneous issue with %-logging when logging can be configured for % logging.
-    "S101",    # Use of assert here is a known quantity. Blame typing memes.
-    "PLR2004", # Magic value comparison. May remove later.
-    "SIM105",  # Suppressable exception. I'm not paying the overhead of contextlib.suppress for stylistic choices.
-    "C90",     # McCabe complexity memes.
-    "PLR0913", # Some functions require more than 5 arguments.
-    "ANN101",  # Python310 doesn't have Self in typing, so I'm not using it everywhere for self.
-    "ANN102",  # Same deal as ANN101, but for cls.
-    "ANN401",  # Need Any for args and kwargs in some places.
-    "A001",    # Shadowing "id" and "type" in some places.
-    "A002",    # Shadowing "id" and "type" in some places.
-    "A003",    # Shadowing "id" and "type" in some places.
-    "PD",      # Pandas isn't relevant for this project.
-    "NPY",     # Numpy isn't relevant for this project.
+    "S101", # Use of assert here is a known quantity. Blame typing memes.
+    # "PLR2004", # Magic value comparison. May remove later.
+    "SIM105", # Suppressable exception. contextlib.suppress is a stylistic choice with overhead.
+    "C90",    # McCabe complexity memes.
+    "PD011",  # Erroneous issue that triggers for any .values attribute access at all.
+    "S311",   # No need for cryptographically secure random number generation in this use case.
+    "ANN101", # Type of self is implicit.
+    "ANN102", # Type of cls is implicit.
+    "ANN204", # Special method return types are known by type checker.
+    "ANN401", # Not sure how else to type *args and **kwargs when they could be anything.
+    "PLR",    # Complexity things.
+    "PYI036", # False positive for annotations for __exit__ when TYPE_CHECKING else has alternatives for types.
+    "A001",   # Shadowing "id" and "type" in some places.
+    "A002",   # Shadowing "id" and "type" in some places.
+    "A003",   # Shadowing "id" and "type" in some places.
+    # Recommended by Ruff when using Ruff format.
+    "E111",
+    "E114",
+    "E117",
+    "Q003",
+    "COM812",
+    "COM819",
+    # "E501",
+    "ISC001",
+    "ISC002",
 ]
 unfixable = [
     "ERA",     # I don't want anything erroneously detected deleted by this.
     "PLC0414", # This causes issues when declaring module imports in __init__ files. Disallow deletion.
 ]
 
-[tool.ruff.per-file-ignores]
+[tool.ruff.lint.per-file-ignores]
+# Star import usually throws these.
 "__init__.py" = [
     "F403",    # Undefined import with star
     "PLC0414", # Import alias does not rename original package
 ]
 "tests/*" = ["INP001"] # Leave the tests alone.
 
-[tool.ruff.isort]
+[tool.ruff.lint.isort]
 lines-after-imports = 2
 combine-as-imports = true
 
-[tool.ruff.pydocstyle]
-property-decorators = ["ao3.utils.cached_slot_property"] # Similar enough to functools.cached_property()?
+[tool.ruff.lint.pydocstyle]
+property-decorators = [
+    "ao3.utils.cached_slot_property",
+] # Similar enough to functools.cached_property()?
 
 [tool.pyright]
 include = ["ao3", "tests"]
