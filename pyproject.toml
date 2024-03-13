@@ -53,7 +53,6 @@ Homepage = "https://ao3py.readthedocs.io/en/latest/index.html"
 Repository = "https://github.com/Sachaa-Thanasius/ao3.py"
 "Issue Tracker" = "https://github.com/Sachaa-Thanasius/ao3.py/issues"
 
-
 [tool.ruff]
 line-length = 120
 target-version = "py38"
