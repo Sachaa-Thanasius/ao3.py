@@ -129,7 +129,6 @@ unfixable = [
     "F403",    # Undefined import with star
     "PLC0414", # Import alias does not rename original package
 ]
-"tests/*" = ["INP001"] # Leave the tests alone.
 
 [tool.ruff.lint.isort]
 lines-after-imports = 2
