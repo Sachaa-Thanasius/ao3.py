@@ -46,7 +46,7 @@ class Route:
         will become ``"user/1234/profile"``.
     """
 
-    __slots__ = ("verb", "path", "url")
+    __slots__ = ("path", "url", "verb")
 
     def __init__(self, verb: HTTPMethod, path: str, **parameters: object) -> None:
         self.verb = verb
@@ -59,8 +59,8 @@ class Route:
 
 class AuthState:
     __slots__ = (
-        "login_token",
         "client_user",
+        "login_token",
     )
 
     def __init__(self, login_token: str, client_user: User) -> None:

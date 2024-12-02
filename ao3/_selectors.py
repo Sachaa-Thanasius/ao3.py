@@ -6,9 +6,9 @@ from lxml import cssselect
 
 
 __all__ = (
-    "WORK_SELECTORS",
     "SERIES_SELECTORS",
     "USER_SELECTORS",
+    "WORK_SELECTORS",
 )
 
 CSSSelector = partial(cssselect.CSSSelector, translator="html")
