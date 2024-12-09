@@ -33,12 +33,12 @@ any_property = Union[property, CachedSlotProperty[T1, T2]]
 
 
 __all__ = (
-    "Page",
-    "KudoableMixin",
     "BookmarkableMixin",
-    "SubscribableMixin",
-    "CommentableMixin",
     "CollectableMixin",
+    "CommentableMixin",
+    "KudoableMixin",
+    "Page",
+    "SubscribableMixin",
 )
 
 
