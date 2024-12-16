@@ -34,23 +34,23 @@ class Series(Page, BookmarkableMixin, SubscribableMixin):  # type: ignore # Over
     """
 
     __slots__ = (
-        "_id",
-        "_http",
-        "_element",
         "_authenticity_token",
         "_cs_bookmark_id",
-        "_cs_sub_id",
-        "_cs_name",
         "_cs_creators",
         "_cs_date_begun",
         "_cs_date_updated",
         "_cs_description",
+        "_cs_is_complete",
+        "_cs_name",
+        "_cs_nbookmarks",
         "_cs_notes",
         "_cs_nwords",
         "_cs_nworks",
-        "_cs_is_complete",
-        "_cs_nbookmarks",
+        "_cs_sub_id",
         "_cs_works_list",
+        "_element",
+        "_http",
+        "_id",
     )
 
     def __init__(
