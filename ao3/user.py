@@ -39,20 +39,20 @@ class User(Page, SubscribableMixin):
     """
 
     __slots__ = (
-        "username",
-        "_id",
-        "_http",
-        "_element",
         "_authenticity_token",
-        "_cs_sub_id",
         "_cs_avatar_url",
-        "_cs_pseuds",
         "_cs_date_joined",
-        "_cs_nworks",
-        "_cs_nseries",
         "_cs_nbookmarks",
         "_cs_ncollections",
         "_cs_ngifts",
+        "_cs_nseries",
+        "_cs_nworks",
+        "_cs_pseuds",
+        "_cs_sub_id",
+        "_element",
+        "_http",
+        "_id",
+        "username",
     )
     username: str
 

@@ -26,15 +26,15 @@ R = TypeVar("R")
 SP = TypeVar("SP", bound="SearchOptions")
 
 __all__ = (
-    "WorkSearchOptions",
-    "PeopleSearchOptions",
-    "BookmarkSearchOptions",
-    "TagSearchOptions",
-    "Search",
-    "WorkSearch",
-    "PeopleSearch",
     "BookmarkSearch",
+    "BookmarkSearchOptions",
+    "PeopleSearch",
+    "PeopleSearchOptions",
+    "Search",
     "TagSearch",
+    "TagSearchOptions",
+    "WorkSearch",
+    "WorkSearchOptions",
 )
 
 TAG_SECTIONS = re.compile(r"(?P<type>.*): (?P<name>.*)\u200E\((?P<count>\d+)\)")
@@ -328,12 +328,12 @@ class Search(Page, Generic[SP, R]):
     """The base class for AO3 search results."""
 
     __slots__ = (
-        "_id",
-        "_http",
-        "_element",
         "_authenticity_token",
-        "_search_options",
         "_cs_results",
+        "_element",
+        "_http",
+        "_id",
+        "_search_options",
     )
 
     def __init__(

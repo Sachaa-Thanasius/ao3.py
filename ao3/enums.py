@@ -4,11 +4,11 @@ from enum import Enum
 
 
 __all__ = (
-    "RatingId",
     "ArchiveWarningId",
     "CategoryId",
-    "Language",
     "FandomKey",
+    "Language",
+    "RatingId",
 )
 
 
